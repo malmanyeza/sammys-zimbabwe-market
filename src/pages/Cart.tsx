@@ -11,7 +11,6 @@ import Footer from '@/components/layout/Footer';
 const Cart = () => {
   const { items, removeItem, updateQuantity, getCartTotal } = useCart();
   const tax = getCartTotal() * 0.15; // 15% tax rate
-  const navigate = useNavigate();
 
   if (items.length === 0) {
     return (
@@ -111,11 +110,7 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={() => navigate('/checkout')}
-              >
+              <Button className="w-full" size="lg">
                 Proceed to Checkout
               </Button>
             </Card>
