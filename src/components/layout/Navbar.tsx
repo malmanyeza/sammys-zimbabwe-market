@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Search, ShoppingCart, User } from "lucide-react";
 
@@ -7,8 +8,13 @@ const Navbar = () => {
   return (
     <nav className="bg-background border-b border-primary/10 py-4 px-6 fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-primary">Sammy's Market</h1>
+        <div className="flex items-center space-x-8">
+          <Link to="/">
+            <h1 className="text-2xl font-bold text-primary">Sammy's Market</h1>
+          </Link>
+          <Link to="/products" className="hidden md:block text-foreground hover:text-primary transition-colors">
+            Products
+          </Link>
         </div>
         
         <div className="hidden md:flex items-center space-x-6">
