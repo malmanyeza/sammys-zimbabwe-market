@@ -2,16 +2,30 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
+    id: number;
     name: string;
     description: string;
     price: number;
+    image: string;
   };
 }
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -39,7 +53,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       </div>
 
       <div className="flex gap-4 pt-6">
-        <Button size="lg" className="flex-1">
+        <Button size="lg" className="flex-1" onClick={handleAddToCart}>
           <ShoppingCart className="mr-2" />
           Add to Cart
         </Button>
