@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -110,11 +110,19 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-              <Link to="/products">
-                <Button className="w-full" size="lg">
-                  Continue Shopping
-                </Button>
-              </Link>
+              <div className="space-y-3">
+                <Link to="/checkout" className="block w-full">
+                  <Button className="w-full" size="lg">
+                    Checkout
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/products">
+                  <Button variant="outline" className="w-full">
+                    Continue Shopping
+                  </Button>
+                </Link>
+              </div>
             </Card>
           </div>
         </div>
