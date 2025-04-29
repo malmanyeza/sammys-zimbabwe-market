@@ -2,8 +2,14 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-const FilterSection = () => {
+interface FilterSectionProps {
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+}
+
+const FilterSection = ({ selectedCategory, onCategoryChange }: FilterSectionProps) => {
   const categories = [
     'All Products',
     'Crafts',
@@ -23,7 +29,13 @@ const FilterSection = () => {
               <Button
                 key={category}
                 variant="ghost"
-                className="w-full justify-start hover:text-primary hover:bg-primary/5"
+                className={cn(
+                  "w-full justify-start",
+                  selectedCategory === category 
+                    ? "bg-primary/10 text-primary font-medium" 
+                    : "hover:text-primary hover:bg-primary/5"
+                )}
+                onClick={() => onCategoryChange(category)}
               >
                 {category}
               </Button>
@@ -34,30 +46,15 @@ const FilterSection = () => {
         <div className="border-t pt-6">
           <h3 className="font-semibold text-lg mb-4">Price Range</h3>
           <div className="space-y-2">
-            <Button
-              variant="ghost"
-              className="w-full justify-start hover:text-primary hover:bg-primary/5"
-            >
-              Under $50
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start hover:text-primary hover:bg-primary/5"
-            >
-              $50 - $100
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start hover:text-primary hover:bg-primary/5"
-            >
-              $100 - $200
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start hover:text-primary hover:bg-primary/5"
-            >
-              Over $200
-            </Button>
+            {['Under $50', '$50 - $100', '$100 - $200', 'Over $200'].map((priceRange) => (
+              <Button
+                key={priceRange}
+                variant="ghost"
+                className="w-full justify-start hover:text-primary hover:bg-primary/5"
+              >
+                {priceRange}
+              </Button>
+            ))}
           </div>
         </div>
       </div>

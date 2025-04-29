@@ -110,9 +110,11 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-              <Button className="w-full" size="lg">
-                Proceed to Checkout
-              </Button>
+              <Link to="/products">
+                <Button className="w-full" size="lg">
+                  Continue Shopping
+                </Button>
+              </Link>
             </Card>
           </div>
         </div>

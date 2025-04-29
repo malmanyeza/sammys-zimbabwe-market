@@ -1,47 +1,55 @@
+
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Heart } from "lucide-react";
 import { Link } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
-  id?: number;
+  id: number;
   image: string;
   name: string;
   description: string;
   price: number;
 }
 
-const ProductCard = ({ id = 1, image, name, description, price }: ProductCardProps) => {
+const ProductCard = ({ id, image, name, description, price }: ProductCardProps) => {
+  const { addItem } = useCart();
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigating to product details
+    addItem({ id, name, price, image });
+  };
+  
   return (
-    <Card className="overflow-hidden group">
-      <Link to={`/products/${id}`} className="block">
-        <div className="relative aspect-square overflow-hidden">
+    <Link to={`/products/${id}`}>
+      <Card className="overflow-hidden h-full transition-all hover:shadow-lg">
+        <div className="aspect-square relative overflow-hidden">
           <img
             src={image}
             alt={name}
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+            className="object-cover w-full h-full transition-transform hover:scale-105"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-          >
-            <Heart className="h-5 w-5 text-primary" />
-          </Button>
         </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-lg mb-1">{name}</h3>
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{description}</p>
+        <CardContent className="p-4">
+          <h3 className="font-semibold mb-1 line-clamp-1">{name}</h3>
+          <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{description}</p>
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-primary">${price}</span>
-            <Button size="sm" className="bg-primary hover:bg-primary/90">
-              Add to Cart
+            <p className="font-semibold text-primary">${price}</p>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={handleAddToCart}
+              className="hover:bg-primary hover:text-white"
+            >
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Add
             </Button>
           </div>
-        </div>
-      </Link>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 
