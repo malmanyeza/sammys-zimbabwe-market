@@ -1,6 +1,8 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAuthModals } from '@/components/auth/AuthModals';
 
 interface CartItem {
   id: number;
@@ -24,8 +26,21 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const { openSignInModal, AuthModalsComponent } = useAuthModals();
 
   const addItem = (product: { id: number; name: string; price: number; image: string }) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add items to your cart.",
+        duration: 3000,
+      });
+      openSignInModal();
+      return;
+    }
+
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === product.id);
       if (existingItem) {
@@ -76,6 +91,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearCart 
     }}>
       {children}
+      <AuthModalsComponent />
     </CartContext.Provider>
   );
 };

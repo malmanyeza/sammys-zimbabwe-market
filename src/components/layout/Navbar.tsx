@@ -1,11 +1,27 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Search, ShoppingCart, User, LogIn, LogOut, Package } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import SignInModal from '@/components/auth/SignInModal';
+import SignUpModal from '@/components/auth/SignUpModal';
 
 const Navbar = () => {
   const { items } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+  
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
@@ -18,6 +34,11 @@ const Navbar = () => {
           <Link to="/products" className="hidden md:block text-foreground hover:text-primary transition-colors">
             Products
           </Link>
+          {isAuthenticated && user?.role === 'seller' && (
+            <Link to="/seller-dashboard" className="hidden md:block text-foreground hover:text-primary transition-colors">
+              Seller Dashboard
+            </Link>
+          )}
         </div>
         
         <div className="hidden md:flex items-center space-x-6">
@@ -42,14 +63,60 @@ const Navbar = () => {
               )}
             </Button>
           </Link>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button variant="default" className="bg-primary hover:bg-primary/90">
-            Sign In
-          </Button>
+          
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                {user?.role === 'seller' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/seller-dashboard">
+                      <Package className="mr-2 h-4 w-4" />
+                      <span>Seller Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="default" className="bg-primary hover:bg-primary/90" onClick={() => setShowSignInModal(true)}>
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
+
+      <SignInModal 
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        onOpenSignUp={() => {
+          setShowSignInModal(false);
+          setShowSignUpModal(true);
+        }}
+      />
+      <SignUpModal 
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        onOpenSignIn={() => {
+          setShowSignUpModal(false);
+          setShowSignInModal(true);
+        }}
+      />
     </nav>
   );
 };
