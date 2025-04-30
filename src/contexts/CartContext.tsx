@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,11 +31,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addItem = (product: { id: number; name: string; price: number; image: string }) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to add items to your cart.",
-        duration: 3000,
-      });
+      // Open sign-in modal directly instead of just showing a toast
       openSignInModal();
       return;
     }
