@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -34,6 +35,14 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onOpenSignUp
       const success = await login(email, password);
       if (success) {
         onClose();
+        toast("Login Successful", {
+          description: "Welcome back to Sammy's Market!",
+        });
+      } else {
+        toast("Login Failed", {
+          description: "Invalid email or password.",
+          variant: "destructive",
+        });
       }
     } finally {
       setIsLoading(false);
