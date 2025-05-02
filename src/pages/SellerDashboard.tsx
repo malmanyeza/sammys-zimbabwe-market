@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
@@ -6,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, DollarSign, ShoppingBag } from 'lucide-react';
+import { Package, DollarSign, ShoppingBag, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,13 @@ const productSchema = z.object({
   name: z.string().min(3, { message: "Product name must be at least 3 characters" }),
   price: z.coerce.number().positive({ message: "Price must be positive" }),
   stock: z.coerce.number().int().positive({ message: "Stock must be a positive integer" }),
-  image: z.string().url({ message: "Please enter a valid image URL" }).optional().or(z.literal(''))
+  image: z.instanceof(File, { message: "Please upload an image file" }).optional()
+    .or(z.literal(''))
+    .refine((file) => {
+      if (!file) return true; // Optional field
+      return file instanceof File && 
+        ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type);
+    }, "Please upload a valid image file (JPEG, PNG, GIF, WEBP)")
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -28,6 +33,7 @@ type ProductFormValues = z.infer<typeof productSchema>;
 const SellerDashboard = () => {
   const { user } = useAuth();
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   // Mock seller data
   const [mockProducts, setMockProducts] = useState([
@@ -42,28 +48,52 @@ const SellerDashboard = () => {
       name: '',
       price: 0,
       stock: 0,
-      image: ''
+      image: undefined
     }
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    form.setValue("image", file);
+    
+    // Create a preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddProduct = (data: ProductFormValues) => {
+    // In a real app, you would upload the image to a storage service here
+    // and get back a URL to use for the product
+    
     const newProduct = {
       id: mockProducts.length + 1,
       name: data.name,
       price: data.price,
       stock: data.stock,
       sales: 0,
-      image: data.image || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
+      // Use the preview URL for demo purposes (in a real app, this would be the uploaded image URL)
+      image: imagePreview || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9'
     };
     
     setMockProducts([...mockProducts, newProduct]);
     setIsAddProductOpen(false);
     form.reset();
+    setImagePreview(null);
     
-    // Fix: Use the correct toast function syntax
     toast(`${data.name} has been added to your products.`, {
       description: "Your product was successfully added to inventory."
     });
+  };
+
+  const resetForm = () => {
+    form.reset();
+    setImagePreview(null);
+    setIsAddProductOpen(false);
   };
 
   return (
@@ -269,14 +299,35 @@ const SellerDashboard = () => {
               <FormField
                 control={form.control}
                 name="image"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
-                    <FormLabel>Image URL</FormLabel>
+                    <FormLabel>Product Image</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="https://example.com/image.jpg" 
-                        {...field} 
-                      />
+                      <div className="space-y-3">
+                        <Input 
+                          type="file" 
+                          accept="image/*"
+                          className="cursor-pointer"
+                          onChange={handleImageChange}
+                          {...fieldProps} 
+                        />
+                        {imagePreview && (
+                          <div className="mt-2 relative w-full h-40 rounded-md overflow-hidden">
+                            <img 
+                              src={imagePreview} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        {!imagePreview && (
+                          <div className="mt-2 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center text-gray-500">
+                            <Upload className="h-8 w-8 mb-2" />
+                            <p>No image selected</p>
+                            <p className="text-xs">Upload a product image (JPEG, PNG, GIF)</p>
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -287,7 +338,7 @@ const SellerDashboard = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => setIsAddProductOpen(false)}
+                  onClick={resetForm}
                 >
                   Cancel
                 </Button>
