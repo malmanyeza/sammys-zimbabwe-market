@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export type UserRole = 'customer' | 'seller';
 
@@ -40,7 +40,6 @@ const mockUsers: User[] = [
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const { toast } = useToast();
   const navigate = useNavigate();
   
   const isAuthenticated = user !== null;
@@ -55,19 +54,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     if (foundUser) {
       setUser(foundUser);
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${foundUser.name}!`,
-        duration: 3000,
-      });
+      toast.success(`Welcome back, ${foundUser.name}!`);
       return true;
     } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid email or password.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast.error("Invalid email or password.");
       return false;
     }
   };
@@ -81,12 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const existingUser = mockUsers.find(u => u.email === email);
     
     if (existingUser) {
-      toast({
-        title: "Registration Failed",
-        description: "Email already in use.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast.error("Email already in use.");
       return false;
     }
     
@@ -103,22 +88,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     mockUsers.push(newUser);
     setUser(newUser);
     
-    toast({
-      title: "Registration Successful",
-      description: `Welcome, ${name}!`,
-      duration: 3000,
-    });
+    toast.success(`Welcome, ${name}!`);
     return true;
   };
 
   // Logout function
   const logout = () => {
     setUser(null);
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out.",
-      duration: 3000,
-    });
+    toast.success("You have been successfully logged out.");
     navigate('/');
   };
 

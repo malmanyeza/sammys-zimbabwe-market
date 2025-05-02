@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -41,7 +42,10 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onOpenSignUp
   };
 
   const switchToSignUp = () => {
-    onClose();
+    // Reset form state
+    setEmail("");
+    setPassword("");
+    // Just switch to sign up without triggering any other action
     onOpenSignUp();
   };
 

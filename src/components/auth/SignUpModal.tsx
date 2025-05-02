@@ -44,7 +44,11 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onOpenSignIn
   };
 
   const switchToSignIn = () => {
-    onClose();
+    // Reset form state
+    setName("");
+    setEmail("");
+    setPassword("");
+    // Just switch to sign in without triggering any other action
     onOpenSignIn();
   };
 

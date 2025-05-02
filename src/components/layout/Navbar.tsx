@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,19 +8,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SignInModal from '@/components/auth/SignInModal';
 import SignUpModal from '@/components/auth/SignUpModal';
+
 const Navbar = () => {
-  const {
-    items
-  } = useCart();
-  const {
-    user,
-    isAuthenticated,
-    logout
-  } = useAuth();
+  const { items } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
-  return <nav className="bg-background border-b border-primary/10 py-4 px-6 fixed w-full top-0 z-50">
+  
+  const handleOpenSignIn = () => {
+    setShowSignInModal(true);
+    setShowSignUpModal(false);
+  };
+  
+  const handleOpenSignUp = () => {
+    setShowSignUpModal(true);
+    setShowSignInModal(false);
+  };
+  
+  const handleCloseModals = () => {
+    setShowSignInModal(false);
+    setShowSignUpModal(false);
+  };
+
+  return (
+    <nav className="bg-background border-b border-primary/10 py-4 px-6 fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-8">
           <Link to="/">
@@ -28,9 +42,11 @@ const Navbar = () => {
           <Link to="/products" className="hidden md:block text-foreground hover:text-primary transition-colors">
             Products
           </Link>
-          {isAuthenticated && user?.role === 'seller' && <Link to="/seller-dashboard" className="hidden md:block text-foreground hover:text-primary transition-colors">
+          {isAuthenticated && user?.role === 'seller' && (
+            <Link to="/seller-dashboard" className="hidden md:block text-foreground hover:text-primary transition-colors">
               Seller Dashboard
-            </Link>}
+            </Link>
+          )}
         </div>
         
         <div className="hidden md:flex items-center space-x-6">
@@ -44,13 +60,16 @@ const Navbar = () => {
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
-              {cartItemsCount > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
                   {cartItemsCount}
-                </span>}
+                </span>
+              )}
             </Button>
           </Link>
           
-          {isAuthenticated ? <DropdownMenu>
+          {isAuthenticated ? (
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
@@ -62,33 +81,46 @@ const Navbar = () => {
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                {user?.role === 'seller' && <DropdownMenuItem asChild>
+                {user?.role === 'seller' && (
+                  <DropdownMenuItem asChild>
                     <Link to="/seller-dashboard">
                       <Package className="mr-2 h-4 w-4" />
                       <span>Seller Dashboard</span>
                     </Link>
-                  </DropdownMenuItem>}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu> : <Button variant="default" className="bg-primary hover:bg-primary/90" onClick={() => setShowSignInModal(true)}>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              variant="default" 
+              className="bg-primary hover:bg-primary/90" 
+              onClick={handleOpenSignIn}
+            >
               <LogIn className="mr-2 h-4 w-4" />
               Sign In
-            </Button>}
+            </Button>
+          )}
         </div>
       </div>
 
-      <SignInModal isOpen={showSignInModal} onClose={() => setShowSignInModal(false)} onOpenSignUp={() => {
-      setShowSignInModal(false);
-      setShowSignUpModal(true);
-    }} />
-      <SignUpModal isOpen={showSignUpModal} onClose={() => setShowSignUpModal(false)} onOpenSignIn={() => {
-      setShowSignUpModal(false);
-      setShowSignInModal(true);
-    }} />
-    </nav>;
+      <SignInModal 
+        isOpen={showSignInModal} 
+        onClose={handleCloseModals} 
+        onOpenSignUp={handleOpenSignUp} 
+      />
+      <SignUpModal 
+        isOpen={showSignUpModal} 
+        onClose={handleCloseModals} 
+        onOpenSignIn={handleOpenSignIn} 
+      />
+    </nav>
+  );
 };
+
 export default Navbar;
