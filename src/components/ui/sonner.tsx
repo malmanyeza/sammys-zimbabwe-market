@@ -31,4 +31,30 @@ const Toaster = ({ ...props }: ToasterProps) => {
   )
 }
 
-export { Toaster, toast }
+// Export the original toast function and add some helper functions
+export { Toaster }
+
+// Create wrapper functions for different toast types
+export const toast = {
+  // Default toast
+  default: (message: string, options?: any) => {
+    return Sonner.toast(message, options);
+  },
+  // Success toast
+  success: (message: string, options?: any) => {
+    return Sonner.toast.success(message, options);
+  },
+  // Error toast
+  error: (message: string, options?: any) => {
+    return Sonner.toast.error(message, options);
+  },
+  // Warning toast
+  warning: (message: string, options?: any) => {
+    return Sonner.toast.warning(message, options);
+  },
+  // Info toast
+  info: (message: string, options?: any) => {
+    return Sonner.toast.info(message, options);
+  }
+}
+

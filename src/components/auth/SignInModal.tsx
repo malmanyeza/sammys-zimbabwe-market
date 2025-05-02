@@ -35,13 +35,12 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onOpenSignUp
       const success = await login(email, password);
       if (success) {
         onClose();
-        toast("Login Successful", {
+        toast.success("Login Successful", {
           description: "Welcome back to Sammy's Market!",
         });
       } else {
-        toast("Login Failed", {
+        toast.error("Login Failed", {
           description: "Invalid email or password.",
-          variant: "destructive",
         });
       }
     } finally {
