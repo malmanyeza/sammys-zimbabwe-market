@@ -1,6 +1,6 @@
 
 import { useTheme } from "next-themes"
-import { Toaster as Sonner, toast } from "sonner"
+import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
@@ -31,30 +31,29 @@ const Toaster = ({ ...props }: ToasterProps) => {
   )
 }
 
-// Export the original toast function and add some helper functions
+// Export the Toaster component
 export { Toaster }
 
-// Create wrapper functions for different toast types
+// Create our custom toast object with helper functions
 export const toast = {
   // Default toast
   default: (message: string, options?: any) => {
-    return Sonner.toast(message, options);
+    return sonnerToast(message, options);
   },
   // Success toast
   success: (message: string, options?: any) => {
-    return Sonner.toast.success(message, options);
+    return sonnerToast.success(message, options);
   },
   // Error toast
   error: (message: string, options?: any) => {
-    return Sonner.toast.error(message, options);
+    return sonnerToast.error(message, options);
   },
   // Warning toast
   warning: (message: string, options?: any) => {
-    return Sonner.toast.warning(message, options);
+    return sonnerToast.warning(message, options);
   },
   // Info toast
   info: (message: string, options?: any) => {
-    return Sonner.toast.info(message, options);
+    return sonnerToast.info(message, options);
   }
 }
-

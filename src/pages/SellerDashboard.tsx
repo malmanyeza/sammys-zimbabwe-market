@@ -60,8 +60,8 @@ const SellerDashboard = () => {
     setIsAddProductOpen(false);
     form.reset();
     
-    // Fix: Use the correct toast function syntax
-    toast(`${data.name} has been added to your products.`, {
+    // Use the correct toast function syntax
+    toast.success(`${data.name} has been added to your products.`, {
       description: "Your product was successfully added to inventory."
     });
   };
