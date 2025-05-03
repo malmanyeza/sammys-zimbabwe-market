@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
@@ -10,7 +9,7 @@ import { Package, DollarSign, ShoppingBag, Upload, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { z } from 'zod';
@@ -192,6 +191,8 @@ const SellerDashboard = () => {
       let imageUrl = null;
       if (data.image instanceof File) {
         const fileName = `${user.id}/${Date.now()}-${data.image.name}`;
+        
+        // Create path for the file
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('product_images')
           .upload(fileName, data.image);

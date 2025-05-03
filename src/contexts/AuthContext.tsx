@@ -1,7 +1,9 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export type UserRole = 'customer' | 'seller';
 
@@ -22,81 +24,122 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user data for demonstration
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'customer'
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'seller'
-  }
-];
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
   
   const isAuthenticated = user !== null;
 
-  // Mock login function
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Find user by email (in real app, would verify password too)
-    const foundUser = mockUsers.find(u => u.email === email);
-    
-    if (foundUser) {
-      setUser(foundUser);
-      toast.success(`Welcome back, ${foundUser.name}!`);
-      return true;
-    } else {
-      toast.error("Invalid email or password.");
-      return false;
-    }
-  };
+  useEffect(() => {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          // Get user profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-  // Mock register function
-  const register = async (name: string, email: string, password: string, role: UserRole): Promise<boolean> => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if email already exists
-    const existingUser = mockUsers.find(u => u.email === email);
-    
-    if (existingUser) {
-      toast.error("Email already in use.");
-      return false;
-    }
-    
-    // Create new user
-    const newUser: User = {
-      id: `${mockUsers.length + 1}`,
-      name,
-      email,
-      role
+          if (profile) {
+            setUser({
+              id: session.user.id,
+              name: profile.name || 'User',
+              email: profile.email || session.user.email || '',
+              role: profile.role as UserRole || 'customer'
+            });
+          }
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        // Get user profile data
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUser({
+            id: session.user.id,
+            name: profile.name || 'User',
+            email: profile.email || session.user.email || '',
+            role: profile.role as UserRole || 'customer'
+          });
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    
-    // In a real app, we would save this to a database
-    // For mock, we'll just set the current user
-    mockUsers.push(newUser);
-    setUser(newUser);
-    
-    toast.success(`Welcome, ${name}!`);
-    return true;
+  }, []);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        toast.error(error.message);
+        return false;
+      }
+      
+      toast.success("Successfully logged in!");
+      return true;
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Failed to log in. Please try again.");
+      return false;
+    }
   };
 
-  // Logout function
-  const logout = () => {
-    setUser(null);
-    toast.success("You have been successfully logged out.");
-    navigate('/');
+  const register = async (name: string, email: string, password: string, role: UserRole): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role
+          }
+        }
+      });
+      
+      if (error) {
+        toast.error(error.message);
+        return false;
+      }
+      
+      toast.success("Registration successful! Check your email for verification.");
+      return true;
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Failed to register. Please try again.");
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      toast.success("You have been successfully logged out.");
+      navigate('/');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to log out. Please try again.");
+    }
   };
 
   return (
