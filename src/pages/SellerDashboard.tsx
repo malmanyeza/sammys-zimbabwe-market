@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
@@ -85,7 +86,8 @@ const SellerDashboard = () => {
     form.reset();
     setImagePreview(null);
     
-    toast(`${data.name} has been added to your products.`, {
+    // Fixed: Use toast.success instead of toast()
+    toast.success(`${data.name} has been added to your products.`, {
       description: "Your product was successfully added to inventory."
     });
   };
