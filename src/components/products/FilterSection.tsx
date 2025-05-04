@@ -7,18 +7,14 @@ import { cn } from "@/lib/utils";
 interface FilterSectionProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  categories?: string[];
 }
 
-const FilterSection = ({ selectedCategory, onCategoryChange }: FilterSectionProps) => {
-  const categories = [
-    'All Products',
-    'Crafts',
-    'Jewelry',
-    'Clothing',
-    'Art',
-    'Home Decor'
-  ];
-
+const FilterSection = ({ 
+  selectedCategory, 
+  onCategoryChange, 
+  categories = ['All Products', 'Crafts', 'Jewelry', 'Clothing', 'Art', 'Home Decor'] 
+}: FilterSectionProps) => {
   return (
     <Card className="p-6">
       <div className="space-y-6">

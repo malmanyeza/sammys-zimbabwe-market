@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const HeroBanner = () => {
   return (
-    <div className="relative bg-[url('https://images.unsplash.com/photo-1580748141549-71748dbe0bdc')] bg-cover bg-center h-[600px] mt-16">
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="relative bg-[url('/lovable-uploads/a00ba48e-f4f0-4147-9c6e-f0caef98e342.png')] bg-cover bg-center h-[600px] mt-16">
+      <div className="absolute inset-0 bg-black/50" />
       <div className="relative h-full max-w-7xl mx-auto px-6 flex items-center">
         <div className="max-w-xl">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
@@ -14,9 +15,11 @@ const HeroBanner = () => {
           <p className="text-lg text-white/90 mb-8">
             Explore our curated collection of traditional crafts, jewelry, and art pieces that tell stories of rich cultural heritage.
           </p>
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
-            Explore Collection
-          </Button>
+          <Link to="/products">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
+              Explore Collection
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
