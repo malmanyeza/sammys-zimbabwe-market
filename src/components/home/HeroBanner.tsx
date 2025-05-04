@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const HeroBanner = () => {
   return (
-    <div className="relative bg-[url('/lovable-uploads/a00ba48e-f4f0-4147-9c6e-f0caef98e342.png')] bg-cover bg-center h-[600px] mt-16">
+    <div className="relative bg-[url('/lovable-uploads/28a8ed11-c3c8-46f1-921b-f5d1922af8f6.png')] bg-cover bg-center h-[600px] mt-16">
       <div className="absolute inset-0 bg-black/50" />
       <div className="relative h-full max-w-7xl mx-auto px-6 flex items-center">
         <div className="max-w-xl">
