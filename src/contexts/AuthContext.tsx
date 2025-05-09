@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 export type UserRole = 'customer' | 'seller';
 
@@ -16,6 +16,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null; // Add session to the context
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<boolean>;
@@ -26,55 +27,78 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null); // Track the session
+  const [isLoading, setIsLoading] = useState(true); // Track loading state
   const navigate = useNavigate();
   
   const isAuthenticated = user !== null;
 
   useEffect(() => {
-    // Set up auth state change listener
+    // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          // Get user profile data
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            setUser({
-              id: session.user.id,
-              name: profile.name || 'User',
-              email: profile.email || session.user.email || '',
-              role: profile.role as UserRole || 'customer'
-            });
-          }
+      async (event, currentSession) => {
+        setSession(currentSession);
+        
+        if (currentSession?.user) {
+          // The setTimeout helps prevent potential deadlocks in Supabase authentication
+          setTimeout(async () => {
+            try {
+              // Get user profile data
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentSession.user.id)
+                .single();
+              
+              if (profile) {
+                setUser({
+                  id: currentSession.user.id,
+                  name: profile.name || 'User',
+                  email: profile.email || currentSession.user.email || '',
+                  role: profile.role as UserRole || 'customer'
+                });
+              }
+              
+              setIsLoading(false);
+            } catch (error) {
+              console.error("Error fetching user profile:", error);
+              setIsLoading(false);
+            }
+          }, 0);
         } else {
           setUser(null);
+          setIsLoading(false);
         }
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        // Get user profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+    // THEN check for existing session
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        try {
+          // Get user profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentSession.user.id)
+            .single();
 
-        if (profile) {
-          setUser({
-            id: session.user.id,
-            name: profile.name || 'User',
-            email: profile.email || session.user.email || '',
-            role: profile.role as UserRole || 'customer'
-          });
+          if (profile) {
+            setUser({
+              id: currentSession.user.id,
+              name: profile.name || 'User',
+              email: profile.email || currentSession.user.email || '',
+              role: profile.role as UserRole || 'customer'
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
         }
       }
+      
+      setIsLoading(false);
     });
 
     return () => {
@@ -134,6 +158,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await supabase.auth.signOut();
       setUser(null);
+      setSession(null);
       toast.success("You have been successfully logged out.");
       navigate('/');
     } catch (error) {
@@ -146,13 +171,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user,
+        session,
         isAuthenticated,
         login,
         register,
         logout
       }}
     >
-      {children}
+      {!isLoading && children}
     </AuthContext.Provider>
   );
 };
