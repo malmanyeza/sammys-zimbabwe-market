@@ -7,7 +7,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
-  id: number;
+  id: string | number; // Updated to accept both string and number
   image: string;
   name: string;
   description: string;
