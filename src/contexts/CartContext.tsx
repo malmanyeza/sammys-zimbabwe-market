@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +14,7 @@ interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: { id: number; name: string; price: number; image: string; }) => void;
+  addItem: (product: { id: number | string; name: string; price: number; image: string; }) => void;
   removeItem: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
   getCartTotal: () => number;
@@ -28,7 +29,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const { openSignInModal, AuthModalsComponent } = useAuthModals();
 
-  const addItem = (product: { id: number; name: string; price: number; image: string }) => {
+  const addItem = (product: { id: number | string; name: string; price: number; image: string }) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Open sign-in modal directly instead of just showing a toast
@@ -36,16 +37,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // Convert id to number if it's a string
+    const productId = typeof product.id === 'string' ? Number(product.id) : product.id;
+
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === product.id);
+      const existingItem = currentItems.find(item => item.id === productId);
       if (existingItem) {
         return currentItems.map(item =>
-          item.id === product.id
+          item.id === productId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...currentItems, { ...product, quantity: 1 }];
+      return [...currentItems, { ...product, id: productId, quantity: 1 }];
     });
     
     toast({

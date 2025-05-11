@@ -6,14 +6,14 @@ import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
-    id: string | number; // Updated to accept both string and number
+    id: string | number; 
     name: string;
     description: string;
     price: number;
     image: string;
-    category?: string; // Added as optional
-    stock?: number; // Added as optional
-    sellerId?: string; // Added as optional
+    category?: string; 
+    stock?: number; 
+    sellerId?: string; 
   };
 }
 
@@ -22,7 +22,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const handleAddToCart = () => {
     addItem({
-      id: product.id,
+      id: Number(product.id), // Convert to number for CartContext
       name: product.name,
       price: product.price,
       image: product.image,

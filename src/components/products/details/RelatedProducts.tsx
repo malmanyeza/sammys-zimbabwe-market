@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from '@/components/home/ProductCard';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -20,15 +21,19 @@ interface Product {
 const RelatedProducts = ({ currentProductId }: RelatedProductsProps) => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {
       try {
+        // Convert currentProductId to string if it's a number to ensure compatibility with Supabase
+        const productIdString = String(currentProductId);
+        
         // Fetch up to 4 other products
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .neq('id', currentProductId)
+          .neq('id', productIdString)
           .limit(4);
           
         if (error) {
@@ -70,7 +75,7 @@ const RelatedProducts = ({ currentProductId }: RelatedProductsProps) => {
         {relatedProducts.map((product) => (
           <ProductCard
             key={product.id}
-            id={product.id}
+            id={product.id} // Now this is passed as a string which matches the expected type
             image={product.image_url || '/placeholder.svg'}
             name={product.name}
             description={product.description || ''}
