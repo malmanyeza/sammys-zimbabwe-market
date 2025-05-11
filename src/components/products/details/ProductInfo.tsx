@@ -6,11 +6,14 @@ import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
-    id: number;
+    id: string | number; // Updated to accept both string and number
     name: string;
     description: string;
     price: number;
     image: string;
+    category?: string; // Added as optional
+    stock?: number; // Added as optional
+    sellerId?: string; // Added as optional
   };
 }
 
