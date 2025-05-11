@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -17,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Type for a product
 interface Product {
@@ -34,6 +37,14 @@ interface Category {
   id: string;
   name: string;
   description?: string;
+}
+
+// Type for order item
+interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  price: number;
 }
 
 // Product schema for form validation
@@ -61,6 +72,7 @@ const SellerDashboard = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   
   // Fetch products from Supabase
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -84,6 +96,29 @@ const SellerDashboard = () => {
     enabled: !!user?.id,
   });
 
+  // Fetch order items to calculate actual sales
+  const { data: orderItems = [] } = useQuery({
+    queryKey: ['orderItems', products],
+    queryFn: async () => {
+      if (!products || products.length === 0) return [];
+      
+      const productIds = products.map(product => product.id);
+      
+      const { data, error } = await supabase
+        .from('order_items')
+        .select('*')
+        .in('product_id', productIds);
+      
+      if (error) {
+        console.error('Error fetching order items:', error);
+        return [];
+      }
+      
+      return data as OrderItem[];
+    },
+    enabled: products.length > 0,
+  });
+
   // Fetch categories from Supabase
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: ['categories'],
@@ -102,10 +137,12 @@ const SellerDashboard = () => {
     },
   });
 
-  // Calculate sales statistics
-  const totalSales = products.length > 0 ? products.reduce((sum, product) => sum + product.price * (product.stock > 10 ? 5 : 2), 0) : 0;
+  // Calculate actual sales based on order items
+  const totalSales = orderItems.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+  }, 0);
+
   const totalProducts = products.length;
-  const totalOrders = Math.floor(totalProducts * 1.5);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -359,6 +396,10 @@ const SellerDashboard = () => {
     setSelectedProduct(product);
     setIsEditProductOpen(true);
   };
+  
+  const handleProductClick = (productId: string) => {
+    navigate(`/products/${productId}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -377,7 +418,7 @@ const SellerDashboard = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
@@ -389,7 +430,7 @@ const SellerDashboard = () => {
                   <DollarSign className="h-6 w-6 text-primary" />
                 </div>
               </div>
-              <p className="text-xs text-green-600 mt-2">+12% from last month</p>
+              <p className="text-xs text-muted-foreground mt-2">Based on actual orders</p>
             </CardContent>
           </Card>
           
@@ -407,27 +448,11 @@ const SellerDashboard = () => {
               <p className="text-xs text-muted-foreground mt-2">{totalProducts} active products</p>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Orders</p>
-                  <p className="text-2xl font-bold">{totalOrders}</p>
-                </div>
-                <div className="bg-primary/10 p-3 rounded-full">
-                  <ShoppingBag className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-              <p className="text-xs text-green-600 mt-2">+25% from last month</p>
-            </CardContent>
-          </Card>
         </div>
 
         <Tabs defaultValue="products">
           <TabsList className="mb-4">
             <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
           
@@ -451,41 +476,51 @@ const SellerDashboard = () => {
                   </div>
                 ) : (
                   <div className="rounded-md border">
-                    <div className="grid grid-cols-6 bg-muted p-4 font-medium">
-                      <div className="col-span-2">Product</div>
-                      <div>Price</div>
-                      <div>Stock</div>
-                      <div>Category</div>
-                      <div>Actions</div>
-                    </div>
-                    {products.map((product) => (
-                      <div key={product.id} className="grid grid-cols-6 p-4 border-t items-center">
-                        <div className="col-span-2 flex items-center gap-2">
-                          {product.image_url ? (
-                            <img 
-                              src={product.image_url} 
-                              alt={product.name} 
-                              className="w-12 h-12 object-cover rounded-md"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-muted flex items-center justify-center rounded-md">
-                              <Package className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                          <span className="font-medium">{product.name}</span>
-                        </div>
-                        <div>${product.price.toFixed(2)}</div>
-                        <div>{product.stock} units</div>
-                        <div>
-                          {categories.find(c => c.id === product.category_id)?.name || 'Uncategorized'}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditClick(product)}>Edit</Button>
-                          <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700" 
-                            onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
-                        </div>
-                      </div>
-                    ))}
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[150px]">Product</TableHead>
+                          <TableHead className="hidden sm:table-cell">Price</TableHead>
+                          <TableHead className="hidden sm:table-cell">Stock</TableHead>
+                          <TableHead className="hidden md:table-cell">Category</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {products.map((product) => (
+                          <TableRow key={product.id} className="cursor-pointer" onClick={() => handleProductClick(product.id)}>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {product.image_url ? (
+                                  <img 
+                                    src={product.image_url} 
+                                    alt={product.name} 
+                                    className="w-10 h-10 object-cover rounded-md"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-muted flex items-center justify-center rounded-md">
+                                    <Package className="h-5 w-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <span className="line-clamp-2">{product.name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">${product.price.toFixed(2)}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{product.stock} units</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {categories.find(c => c.id === product.category_id)?.name || 'Uncategorized'}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="outline" size="sm" onClick={() => handleEditClick(product)}>Edit</Button>
+                                <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700" 
+                                  onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </CardContent>
@@ -494,18 +529,6 @@ const SellerDashboard = () => {
                   <Button variant="outline" className="w-full">Load More</Button>
                 </CardFooter>
               )}
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="orders">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
-                <CardDescription>Manage customer orders and fulfillment</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>No recent orders available.</p>
-              </CardContent>
             </Card>
           </TabsContent>
           
