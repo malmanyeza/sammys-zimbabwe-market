@@ -20,7 +20,7 @@ const ProductCard = ({ id, image, name, description, price }: ProductCardProps) 
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent modal from opening when clicking the button
-    addItem({ id: Number(id), name, price, image });
+    addItem({ id, name, price, image });
     console.log("Here is the product ID when user adds to cart",id)
   };
   
