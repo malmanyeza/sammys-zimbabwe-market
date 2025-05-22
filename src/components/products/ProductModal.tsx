@@ -6,6 +6,7 @@ import { ShoppingCart, Heart, X, Loader2 } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Profile {
   id: string;
@@ -90,7 +91,7 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh]">
         {loading ? (
           <div className="flex items-center justify-center p-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -103,66 +104,67 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl">{product.name}</DialogTitle>
-              
             </DialogHeader>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              <div className="aspect-square relative overflow-hidden rounded-md">
-                <img
-                  src={product.image_url || '/placeholder.svg'}
-                  alt={product.name}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-xl">{product.name}</h3>
-                  <p className="text-2xl font-bold text-primary mt-1">${product.price}</p>
+            <ScrollArea className="max-h-[70vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 pr-4">
+                <div className="aspect-square relative overflow-hidden rounded-md">
+                  <img
+                    src={product.image_url || '/placeholder.svg'}
+                    alt={product.name}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 
-                <p className="text-muted-foreground">{product.description}</p>
-                
-                {product.stock > 0 ? (
-                  <p className="text-sm text-green-600">In Stock ({product.stock} available)</p>
-                ) : (
-                  <p className="text-sm text-red-600">Out of Stock</p>
-                )}
-                
-                <div className="flex gap-4 pt-4">
-                  <Button 
-                    className="flex-1" 
-                    onClick={handleAddToCart}
-                    disabled={product.stock <= 0}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Add to Cart
-                  </Button>
-                  <Button variant="outline">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                {seller && (
-                  <div className="border-t pt-4 mt-4">
-                    <h4 className="font-semibold mb-2">Seller Information</h4>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary">
-                          {seller.name ? seller.name[0].toUpperCase() : 'S'}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium">{seller.name || "Zimbabwe Artisans Collective"}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Member since {new Date(seller.created_at).getFullYear()}
-                        </p>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-xl">{product.name}</h3>
+                    <p className="text-2xl font-bold text-primary mt-1">${product.price}</p>
+                  </div>
+                  
+                  <p className="text-muted-foreground">{product.description}</p>
+                  
+                  {product.stock > 0 ? (
+                    <p className="text-sm text-green-600">In Stock ({product.stock} available)</p>
+                  ) : (
+                    <p className="text-sm text-red-600">Out of Stock</p>
+                  )}
+                  
+                  <div className="flex gap-4 pt-4">
+                    <Button 
+                      className="flex-1" 
+                      onClick={handleAddToCart}
+                      disabled={product.stock <= 0}
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Add to Cart
+                    </Button>
+                    <Button variant="outline">
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {seller && (
+                    <div className="border-t pt-4 mt-4">
+                      <h4 className="font-semibold mb-2">Seller Information</h4>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {seller.name ? seller.name[0].toUpperCase() : 'S'}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium">{seller.name || "Zimbabwe Artisans Collective"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Member since {new Date(seller.created_at).getFullYear()}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            </ScrollArea>
           </>
         )}
       </DialogContent>

@@ -15,7 +15,9 @@ import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { CreditCard, Check } from 'lucide-react';
+import { CreditCard, Check, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Form validation schema
 const formSchema = z.object({
@@ -45,9 +47,11 @@ type CheckoutFormValues = z.infer<typeof formSchema>;
 
 const Checkout = () => {
   const { items, getCartTotal, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const tax = getCartTotal() * 0.15; // 15% tax rate
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Initialize form with validation
   const form = useForm<CheckoutFormValues>({
@@ -56,7 +60,7 @@ const Checkout = () => {
       paymentMethod: "card",
       firstName: "",
       lastName: "",
-      email: "",
+      email: user?.email || "",
       address: "",
       city: "",
       zipCode: "",
@@ -67,20 +71,87 @@ const Checkout = () => {
   // Watch the selected payment method to conditionally render fields
   const paymentMethod = form.watch("paymentMethod");
 
-  const onSubmit = (data: CheckoutFormValues) => {
-    // Simulate payment processing delay
-    toast({
-      title: "Processing payment...",
-      description: "Please wait while we process your order",
-    });
+  const onSubmit = async (data: CheckoutFormValues) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to complete your purchase",
+        variant: "destructive"
+      });
+      navigate('/signin');
+      return;
+    }
     
-    // Simulate processing time
-    setTimeout(() => {
+    if (items.length === 0) {
+      toast({
+        title: "No items in cart",
+        description: "Your cart is empty",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // 1. Create shipping address
+      const { data: shippingAddress, error: shippingError } = await supabase
+        .from('shipping_addresses')
+        .insert({
+          user_id: user.id,
+          name: `${data.firstName} ${data.lastName}`,
+          address_line1: data.address,
+          city: data.city,
+          state: "Not Specified", // Using fixed value as we don't collect state
+          postal_code: data.zipCode,
+          country: "Zimbabwe", // Default country
+        })
+        .select()
+        .single();
+        
+      if (shippingError) {
+        throw new Error("Failed to create shipping address");
+      }
+      
+      // 2. Create order
+      const totalAmount = getCartTotal() + tax;
+      
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total: totalAmount,
+          status: 'pending',
+          shipping_address_id: shippingAddress.id
+        })
+        .select()
+        .single();
+        
+      if (orderError) {
+        throw new Error("Failed to create order");
+      }
+      
+      // 3. Create order items
+      const orderItems = items.map(item => ({
+        order_id: order.id,
+        product_id: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }));
+      
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+        
+      if (itemsError) {
+        throw new Error("Failed to create order items");
+      }
+      
       // Store order data in session storage for the success page
       const orderData = {
-        orderId: `ORD-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+        orderId: order.id,
         items,
-        total: getCartTotal() + tax,
+        total: totalAmount,
         date: new Date().toISOString(),
         shippingDetails: {
           name: `${data.firstName} ${data.lastName}`,
@@ -99,7 +170,17 @@ const Checkout = () => {
       
       // Navigate to success page
       navigate('/order-success');
-    }, 1500);
+      
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Checkout failed",
+        description: error instanceof Error ? error.message : "Something went wrong during checkout",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Redirect to products if cart is empty
@@ -340,7 +421,20 @@ const Checkout = () => {
                     />
                   </CardContent>
                   <CardFooter>
-                    <Button type="submit" className="ml-auto">Place Order</Button>
+                    <Button 
+                      type="submit" 
+                      className="ml-auto" 
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Place Order'
+                      )}
+                    </Button>
                   </CardFooter>
                 </Card>
               </form>
