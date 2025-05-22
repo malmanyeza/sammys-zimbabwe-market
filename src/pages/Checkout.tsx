@@ -131,10 +131,10 @@ const Checkout = () => {
         throw new Error("Failed to create order");
       }
       
-      // 3. Create order items - Fix: Convert product_id from number to string
+      // 3. Create order items - Converting product_id from number to string
       const orderItems = items.map(item => ({
         order_id: order.id,
-        product_id: item.id, // Convert number to string to match expected type
+        product_id: String(item.id), // Convert to string to match expected type
         quantity: item.quantity,
         price: item.price
       }));

@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModals } from '@/components/auth/AuthModals';
 
 interface CartItem {
-  id: number;
+  id: string; // Changed from number to string to be consistent with Supabase IDs
   name: string;
   price: number;
   image: string;
@@ -14,9 +14,9 @@ interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: { id: string; name: string; price: number; image: string; }) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  addItem: (product: { id: string | number; name: string; price: number; image: string; }) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   getCartTotal: () => number;
   clearCart: () => void;
 }
@@ -29,7 +29,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const { openSignInModal, AuthModalsComponent } = useAuthModals();
 
-  const addItem = (product: { id: string; name: string; price: number; image: string }) => {
+  const addItem = (product: { id: string | number; name: string; price: number; image: string }) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Open sign-in modal directly instead of just showing a toast
@@ -37,8 +37,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Convert id to number if it's a string
-    const productId =  product.id;
+    // Convert id to string if it's a number
+    const productId = String(product.id);
 
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === productId);
@@ -59,11 +59,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string) => {
     setItems(currentItems => currentItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity < 1) return;
     setItems(currentItems =>
       currentItems.map(item =>

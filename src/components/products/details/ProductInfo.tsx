@@ -6,7 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
-    id: string | number; 
+    id: string | number; // Allow both string and number types
     name: string;
     description: string;
     price: number;
@@ -22,7 +22,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const handleAddToCart = () => {
     addItem({
-      id: Number(product.id), // Convert to number for CartContext
+      id: product.id, // Now accepts both string and number
       name: product.name,
       price: product.price,
       image: product.image,

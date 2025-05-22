@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,6 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
   const { addItem } = useCart();
 
   useEffect(() => {
-    console.log("Here is the productId", productId);
     const fetchProductDetails = async () => {
       if (!productId) return;
       
@@ -78,7 +76,7 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
   const handleAddToCart = () => {
     if (product) {
       addItem({
-        id: Number(product.id),
+        id: product.id, // This will be a string from Supabase
         name: product.name,
         price: product.price,
         image: product.image_url || '/placeholder.svg',

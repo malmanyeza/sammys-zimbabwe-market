@@ -7,7 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import ProductModal from '@/components/products/ProductModal';
 
 interface ProductCardProps {
-  id: string | number; // Updated to accept both string and number
+  id: string | number; // Keep accepting both types for flexibility
   image: string;
   name: string;
   description: string;
@@ -21,7 +21,6 @@ const ProductCard = ({ id, image, name, description, price }: ProductCardProps) 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent modal from opening when clicking the button
     addItem({ id, name, price, image });
-    console.log("Here is the product ID when user adds to cart",id)
   };
   
   return (
