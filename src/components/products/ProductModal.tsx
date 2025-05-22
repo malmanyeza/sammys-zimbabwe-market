@@ -31,11 +31,11 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
       
       setLoading(true);
       try {
-        // Fetch product details
+        // Fetch product details - convert productId to string to handle both string and number types
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
-          .eq('id', productId)
+          .eq('id', String(productId))
           .single();
           
         if (productError) {

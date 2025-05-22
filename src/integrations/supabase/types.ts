@@ -73,6 +73,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          shipping_address_id: string | null
           status: string
           total: number
           updated_at: string
@@ -81,6 +82,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          shipping_address_id?: string | null
           status: string
           total: number
           updated_at?: string
@@ -89,12 +91,21 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          shipping_address_id?: string | null
           status?: string
           total?: number
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_shipping_address_id_fkey"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_addresses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -164,6 +175,48 @@ export type Database = {
           id?: string
           name?: string | null
           role?: string | null
+        }
+        Relationships: []
+      }
+      shipping_addresses: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          postal_code: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          postal_code: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          postal_code?: string
+          state?: string
+          user_id?: string
         }
         Relationships: []
       }

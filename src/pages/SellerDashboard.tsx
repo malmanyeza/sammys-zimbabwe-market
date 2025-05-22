@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +46,18 @@ interface OrderItem {
   product_id: string;
   quantity: number;
   price: number;
+}
+
+// Type for shipping address
+interface ShippingAddress {
+  id: string;
+  name: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
 }
 
 // Product schema for form validation
@@ -161,7 +174,7 @@ const SellerDashboard = () => {
       // Get unique order IDs
       const orderIds = [...new Set(orderItems.map(item => item.order_id))];
       
-      // Fetch orders with user details
+      // Fetch orders with shipping address details
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select(`
@@ -170,13 +183,14 @@ const SellerDashboard = () => {
           status,
           total,
           user_id,
-          shipping_address:shipping_addresses!orders_shipping_address_id_fkey (
-            id,
-            name,
-            address_line1,
-            city,
-            state,
-            postal_code,
+          shipping_address_id,
+          shipping_addresses(
+            id, 
+            name, 
+            address_line1, 
+            city, 
+            state, 
+            postal_code, 
             country
           )
         `)
@@ -186,30 +200,35 @@ const SellerDashboard = () => {
         console.error('Error fetching orders:', ordersError);
         return [];
       }
-      
+
       // Format orders with their items
-      return orders.map(order => ({
-        id: order.id,
-        created_at: order.created_at,
-        status: order.status,
-        total: order.total,
-        buyer_name: order.shipping_address?.name || 'Customer',
-        buyer_address: order.shipping_address?.address_line1 || 'Address not provided',
-        buyer_city: order.shipping_address?.city || 'City not provided',
-        buyer_state: order.shipping_address?.state || 'State not provided',
-        buyer_zip: order.shipping_address?.postal_code || 'Zip not provided',
-        buyer_country: order.shipping_address?.country || 'Country not provided',
-        order_items: orderItems
-          .filter(item => item.order_id === order.id)
-          .map(item => ({
-            id: item.id,
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price: item.price,
-            product_name: item.products?.name || 'Unknown Product',
-            product_image: item.products?.image_url || null
-          }))
-      }));
+      return orders.map(order => {
+        // Handle potential null shipping address
+        const shippingAddress = order.shipping_addresses as ShippingAddress | null;
+        
+        return {
+          id: order.id,
+          created_at: order.created_at,
+          status: order.status,
+          total: order.total,
+          buyer_name: shippingAddress?.name || 'Customer',
+          buyer_address: shippingAddress?.address_line1 || 'Address not provided',
+          buyer_city: shippingAddress?.city || 'City not provided',
+          buyer_state: shippingAddress?.state || 'State not provided',
+          buyer_zip: shippingAddress?.postal_code || 'Zip not provided',
+          buyer_country: shippingAddress?.country || 'Country not provided',
+          order_items: orderItems
+            .filter(item => item.order_id === order.id)
+            .map(item => ({
+              id: item.id,
+              product_id: item.product_id,
+              quantity: item.quantity,
+              price: item.price,
+              product_name: item.products?.name || 'Unknown Product',
+              product_image: item.products?.image_url || null
+            }))
+        };
+      });
     },
     enabled: !!user?.id && products.length > 0,
   });
