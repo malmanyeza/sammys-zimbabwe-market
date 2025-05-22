@@ -14,7 +14,7 @@ interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: { id: number | string; name: string; price: number; image: string; }) => void;
+  addItem: (product: { id: string; name: string; price: number; image: string; }) => void;
   removeItem: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
   getCartTotal: () => number;
@@ -38,7 +38,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Convert id to number if it's a string
-    const productId = product.id;
+    const productId =  product.id;
 
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === productId);
