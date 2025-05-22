@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import OrdersList from '@/components/seller/OrdersList';
 
 // Type for a product
 interface Product {
@@ -119,6 +119,101 @@ const SellerDashboard = () => {
     enabled: products.length > 0,
   });
 
+  // New query to fetch order data including shipping details
+  const { data: sellerOrders = [], isLoading: isLoadingOrders } = useQuery({
+    queryKey: ['sellerOrders', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      // First get product IDs for this seller
+      const { data: sellerProducts, error: productsError } = await supabase
+        .from('products')
+        .select('id')
+        .eq('seller_id', user.id);
+      
+      if (productsError || !sellerProducts.length) {
+        console.error('Error fetching seller products:', productsError);
+        return [];
+      }
+      
+      const productIds = sellerProducts.map(product => product.id);
+      
+      // Get order items for these products
+      const { data: orderItems, error: orderItemsError } = await supabase
+        .from('order_items')
+        .select(`
+          id,
+          order_id,
+          product_id,
+          quantity,
+          price,
+          products:product_id (name, image_url)
+        `)
+        .in('product_id', productIds);
+      
+      if (orderItemsError) {
+        console.error('Error fetching order items:', orderItemsError);
+        return [];
+      }
+      
+      if (!orderItems.length) return [];
+      
+      // Get unique order IDs
+      const orderIds = [...new Set(orderItems.map(item => item.order_id))];
+      
+      // Fetch orders with user details
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          created_at,
+          status,
+          total,
+          user_id,
+          shipping_address:shipping_addresses!orders_shipping_address_id_fkey (
+            id,
+            name,
+            address_line1,
+            city,
+            state,
+            postal_code,
+            country
+          )
+        `)
+        .in('id', orderIds);
+      
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
+        return [];
+      }
+      
+      // Format orders with their items
+      return orders.map(order => ({
+        id: order.id,
+        created_at: order.created_at,
+        status: order.status,
+        total: order.total,
+        buyer_name: order.shipping_address?.name || 'Customer',
+        buyer_address: order.shipping_address?.address_line1 || 'Address not provided',
+        buyer_city: order.shipping_address?.city || 'City not provided',
+        buyer_state: order.shipping_address?.state || 'State not provided',
+        buyer_zip: order.shipping_address?.postal_code || 'Zip not provided',
+        buyer_country: order.shipping_address?.country || 'Country not provided',
+        order_items: orderItems
+          .filter(item => item.order_id === order.id)
+          .map(item => ({
+            id: item.id,
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+            product_name: item.products?.name || 'Unknown Product',
+            product_image: item.products?.image_url || null
+          }))
+      }));
+    },
+    enabled: !!user?.id && products.length > 0,
+  });
+
   // Fetch categories from Supabase
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: ['categories'],
@@ -143,6 +238,9 @@ const SellerDashboard = () => {
   }, 0);
 
   const totalProducts = products.length;
+  
+  // Calculate total sales and order counts
+  const totalOrders = sellerOrders.length;
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -418,7 +516,7 @@ const SellerDashboard = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
@@ -448,11 +546,27 @@ const SellerDashboard = () => {
               <p className="text-xs text-muted-foreground mt-2">{totalProducts} active products</p>
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+                  <p className="text-2xl font-bold">{totalOrders}</p>
+                </div>
+                <div className="bg-primary/10 p-3 rounded-full">
+                  <ShoppingBag className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Customer orders received</p>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs defaultValue="products">
           <TabsList className="mb-4">
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
           
@@ -529,6 +643,15 @@ const SellerDashboard = () => {
                   <Button variant="outline" className="w-full">Load More</Button>
                 </CardFooter>
               )}
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="orders">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Customer Orders</h3>
+                <OrdersList orders={sellerOrders} isLoading={isLoadingOrders} />
+              </CardContent>
             </Card>
           </TabsContent>
           

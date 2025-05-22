@@ -1,10 +1,10 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
+import ProductModal from '@/components/products/ProductModal';
 
 interface ProductCardProps {
   id: string | number; // Updated to accept both string and number
@@ -16,15 +16,19 @@ interface ProductCardProps {
 
 const ProductCard = ({ id, image, name, description, price }: ProductCardProps) => {
   const { addItem } = useCart();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to product details
-    addItem({ id, name, price, image });
+    e.stopPropagation(); // Prevent modal from opening when clicking the button
+    addItem({ id: Number(id), name, price, image });
   };
   
   return (
-    <Link to={`/products/${id}`}>
-      <Card className="overflow-hidden h-full transition-all hover:shadow-lg">
+    <>
+      <Card 
+        className="overflow-hidden h-full transition-all hover:shadow-lg cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+      >
         <div className="aspect-square relative overflow-hidden">
           <img
             src={image}
@@ -49,7 +53,13 @@ const ProductCard = ({ id, image, name, description, price }: ProductCardProps) 
           </div>
         </CardContent>
       </Card>
-    </Link>
+      
+      <ProductModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productId={id}
+      />
+    </>
   );
 };
 
