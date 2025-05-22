@@ -31,6 +31,8 @@ const Index = () => {
           .order('created_at', { ascending: false });
         
         if (error) throw error;
+
+        console.log("This is the data from fetchProducts in index.js", data)
         
         setProducts(data || []);
       } catch (err) {
