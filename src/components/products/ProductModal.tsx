@@ -27,7 +27,7 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
   const { addItem } = useCart();
 
   useEffect(() => {
-    console.log("Here is the productId",productId)
+    console.log("Here is the productId", productId);
     const fetchProductDetails = async () => {
       if (!productId) return;
       

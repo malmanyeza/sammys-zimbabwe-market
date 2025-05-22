@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -131,10 +131,10 @@ const Checkout = () => {
         throw new Error("Failed to create order");
       }
       
-      // 3. Create order items
+      // 3. Create order items - Fix: Convert product_id from number to string
       const orderItems = items.map(item => ({
         order_id: order.id,
-        product_id: item.id,
+        product_id: String(item.id), // Convert number to string to match expected type
         quantity: item.quantity,
         price: item.price
       }));
