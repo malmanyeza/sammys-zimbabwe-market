@@ -7,7 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import ProductModal from '@/components/products/ProductModal';
 
 interface ProductCardProps {
-  id: string | number; // Keep accepting both types for flexibility
+  id: string; // Keep accepting both types for flexibility
   image: string;
   name: string;
   description: string;
