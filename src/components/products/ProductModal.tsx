@@ -103,13 +103,7 @@ const ProductModal = ({ isOpen, onClose, productId }: ProductModalProps) => {
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl">{product.name}</DialogTitle>
-              <button 
-                onClick={onClose} 
-                className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </button>
+              
             </DialogHeader>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
