@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAuthModals } from '@/components/auth/AuthModals';
 
 interface CartItem {
-  id: string; // Changed from number to string to be consistent with Supabase IDs
+  id: number;
   name: string;
   price: number;
   image: string;
@@ -14,7 +14,7 @@ interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: { id: string | number; name: string; price: number; image: string; }) => void;
+  addItem: (product: { id: string; name: string; price: number; image: string; }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   getCartTotal: () => number;
@@ -29,7 +29,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const { openSignInModal, AuthModalsComponent } = useAuthModals();
 
-  const addItem = (product: { id: string | number; name: string; price: number; image: string }) => {
+  const addItem = (product: { id: string; name: string; price: number; image: string }) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Open sign-in modal directly instead of just showing a toast
@@ -37,8 +37,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Convert id to string if it's a number
-    const productId = String(product.id);
+    // Convert id to number if it's a string
+    const productId = product.id;
 
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === productId);
