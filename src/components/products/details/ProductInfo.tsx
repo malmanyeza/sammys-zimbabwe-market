@@ -6,7 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
-    id: string | number; // Allow both string and number types
+    id: string; // Allow both string and number types
     name: string;
     description: string;
     price: number;
