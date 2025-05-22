@@ -85,7 +85,7 @@ const Index = () => {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                id={Number(product.id)}
+                id={product.id}
                 image={product.image_url || "https://images.unsplash.com/photo-1619637236033-8a97c1ee0c88"}
                 name={product.name}
                 description={product.description || ""}
