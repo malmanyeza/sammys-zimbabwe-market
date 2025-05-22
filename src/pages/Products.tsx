@@ -44,6 +44,8 @@ const Products = () => {
         const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*');
+
+        console.log(productsData)
         
         if (productsError) throw productsError;
         
