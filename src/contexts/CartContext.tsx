@@ -29,7 +29,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated } = useAuth();
   const { openSignInModal, AuthModalsComponent } = useAuthModals();
 
-  const addItem = (product: { id: number | string; name: string; price: number; image: string }) => {
+  const addItem = (product: { id: string; name: string; price: number; image: string }) => {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Open sign-in modal directly instead of just showing a toast
@@ -38,7 +38,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Convert id to number if it's a string
-    const productId = typeof product.id === 'string' ? Number(product.id) : product.id;
+    const productId = product.id;
 
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === productId);
