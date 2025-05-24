@@ -14,6 +14,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import SellerDashboard from "./pages/SellerDashboard";
+import ProductAssistant from "./pages/ProductAssistant";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetails />} />
+              <Route path="/product-assistant" element={<ProductAssistant />} />
               <Route 
                 path="/cart" 
                 element={

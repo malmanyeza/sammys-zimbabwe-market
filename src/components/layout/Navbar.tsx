@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, User, LogIn, LogOut, Package } from "lucide-react";
+import { Search, ShoppingCart, User, LogIn, LogOut, Package, Bot } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -41,6 +41,10 @@ const Navbar = () => {
           </Link>
           <Link to="/products" className="hidden md:block text-foreground hover:text-primary transition-colors">
             Products
+          </Link>
+          <Link to="/product-assistant" className="hidden md:flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+            <Bot className="h-4 w-4" />
+            AI Assistant
           </Link>
           {isAuthenticated && user?.role === 'seller' && (
             <Link to="/seller-dashboard" className="hidden md:block text-foreground hover:text-primary transition-colors">
