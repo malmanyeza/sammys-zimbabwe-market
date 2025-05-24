@@ -138,6 +138,8 @@ const Checkout = () => {
         quantity: item.quantity,
         price: item.price
       }));
+
+      console.log("Here are the ordered Items",orderItems)
       
       const { error: itemsError } = await supabase
         .from('order_items')
