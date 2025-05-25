@@ -16,11 +16,8 @@ import {
   SheetTrigger 
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Package, Truck } from "lucide-react";
+import { Loader2, MapPin, Package } from "lucide-react";
 import { formatRelative } from 'date-fns';
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface OrderItem {
   id: string;
@@ -51,37 +48,6 @@ interface OrdersListProps {
 }
 
 const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
-  const queryClient = useQueryClient();
-
-  const shipOrderMutation = useMutation({
-    mutationFn: async (orderId: string) => {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: 'shipped' })
-        .eq('id', orderId);
-        
-      if (error) {
-        console.error('Error updating order status:', error);
-        throw new Error('Failed to ship order');
-      }
-      
-      return orderId;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sellerOrders'] });
-      toast.success('Order marked as shipped');
-    },
-    onError: (error) => {
-      toast.error('Failed to ship order', {
-        description: error.message
-      });
-    }
-  });
-
-  const handleShipOrder = (orderId: string) => {
-    shipOrderMutation.mutate(orderId);
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-12">
@@ -138,9 +104,7 @@ const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
                   <span className="text-sm truncate max-w-[200px]">
-                    {order.buyer_address && order.buyer_city && order.buyer_state 
-                      ? `${order.buyer_address}, ${order.buyer_city}, ${order.buyer_state}` 
-                      : 'Address not available'}
+                    {order.buyer_city}, {order.buyer_state}
                   </span>
                 </div>
               </TableCell>
@@ -160,7 +124,7 @@ const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
                         <p className="text-sm text-muted-foreground">
                           Placed on {new Date(order.created_at).toLocaleDateString()}
                         </p>
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="mt-2">
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                             order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
@@ -170,26 +134,6 @@ const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
                           }`}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
-                          {order.status === 'pending' && (
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleShipOrder(order.id)}
-                              disabled={shipOrderMutation.isPending}
-                              className="ml-2"
-                            >
-                              {shipOrderMutation.isPending ? (
-                                <>
-                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                                  Shipping...
-                                </>
-                              ) : (
-                                <>
-                                  <Truck className="mr-1 h-3 w-3" />
-                                  Mark as Shipped
-                                </>
-                              )}
-                            </Button>
-                          )}
                         </div>
                       </div>
                       
