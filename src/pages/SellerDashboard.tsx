@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,7 +7,7 @@ import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, DollarSign, ShoppingBag, Upload, Loader2, User, BarChart } from 'lucide-react';
+import { Package, DollarSign, ShoppingBag, Upload, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -20,8 +21,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import OrdersList from '@/components/seller/OrdersList';
-import UserProfile from '@/components/seller/UserProfile';
-import SalesAnalytics from '@/components/seller/SalesAnalytics';
 
 // Type for a product
 interface Product {
@@ -530,20 +529,10 @@ const SellerDashboard = () => {
               Welcome back, {user?.name}
             </p>
           </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <UserProfile 
-              trigger={
-                <Button variant="outline" size="sm">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </Button>
-              }
-            />
-            <Button onClick={() => setIsAddProductOpen(true)}>
-              <Package className="mr-2 h-4 w-4" />
-              Add New Product
-            </Button>
-          </div>
+          <Button className="mt-4 md:mt-0" onClick={() => setIsAddProductOpen(true)}>
+            <Package className="mr-2 h-4 w-4" />
+            Add New Product
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -597,10 +586,7 @@ const SellerDashboard = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="analytics">
-              <BarChart className="mr-2 h-4 w-4" />
-              Analytics
-            </TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
           
           <TabsContent value="products">
@@ -695,12 +681,9 @@ const SellerDashboard = () => {
                 <CardDescription>View insights about your store performance</CardDescription>
               </CardHeader>
               <CardContent>
-                <SalesAnalytics 
-                  products={products}
-                  categories={categories}
-                  orderItems={orderItems}
-                  sellerOrders={sellerOrders}
-                />
+                <div className="h-[300px] flex items-center justify-center border rounded-md">
+                  <p className="text-muted-foreground">Analytics data will appear here</p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
