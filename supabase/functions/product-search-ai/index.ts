@@ -77,16 +77,17 @@ ${productList}
 
 When a user asks for product recommendations:
 1. Analyze their request carefully
-2. Find products that match their description
-3. Return ONLY the product IDs of matching items as a JSON array
-4. If no products match, return an empty array
-5. Consider synonyms and related terms (e.g., "traditional food" could match "sadza", "craft" could match "sculpture")
-6. Focus on the most relevant matches (maximum 5 products)
+2. Find products that match their description (look for keywords, cultural references, occasions, etc.)
+3. Return the product IDs of ALL matching items as a JSON array (not just one product)
+4. If multiple products could work, include them all (up to 5 most relevant)
+5. If no products match, return an empty array
+6. Consider synonyms, cultural context, and related terms (e.g., "soko" relates to elephant/traditional items, "jewellery" could match necklaces or beaded items, "traditional" could match sculptures or cultural items)
+7. Look at both product names AND descriptions for matches
 
 Respond with ONLY a JSON object in this format:
 {
   "product_ids": ["id1", "id2", "id3"],
-  "explanation": "Brief explanation of why these products match the request"
+  "explanation": "Brief explanation of why these products match the request and how many options were found"
 }`
           },
           {

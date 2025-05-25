@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, ShoppingCart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import ProductCard from '@/components/home/ProductCard';
+import { useCart } from '@/contexts/CartContext';
 
 interface ChatMessage {
   id: string;
@@ -32,6 +32,16 @@ const ProductChatbot = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { addItem } = useCart();
+
+  const handleAddToCart = (product: any) => {
+    addItem({ 
+      id: product.id, 
+      name: product.name, 
+      price: product.price, 
+      image: product.image_url || "https://images.unsplash.com/photo-1619637236033-8a97c1ee0c88" 
+    });
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -120,18 +130,38 @@ const ProductChatbot = () => {
                   <p className="text-sm">{message.content}</p>
                 </div>
                 
-                {/* Display products if any */}
+                {/* Display products in compact grid */}
                 {message.products && message.products.length > 0 && (
-                  <div className="mt-3 grid gap-4">
+                  <div className="mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2">
                     {message.products.map((product) => (
-                      <div key={product.id} className="border rounded-lg p-3">
-                        <ProductCard
-                          id={product.id}
-                          image={product.image_url || "https://images.unsplash.com/photo-1619637236033-8a97c1ee0c88"}
-                          name={product.name}
-                          description={product.description || ""}
-                          price={product.price}
-                        />
+                      <div key={product.id} className="border rounded-lg p-3 bg-white">
+                        <div className="flex gap-3">
+                          <img
+                            src={product.image_url || "https://images.unsplash.com/photo-1619637236033-8a97c1ee0c88"}
+                            alt={product.name}
+                            className="w-16 h-16 rounded object-cover flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+                            <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                              {product.description || "No description available"}
+                            </p>
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="font-semibold text-primary text-sm">
+                                ${product.price}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleAddToCart(product)}
+                                className="h-7 px-2 text-xs hover:bg-primary hover:text-white"
+                              >
+                                <ShoppingCart className="h-3 w-3 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
