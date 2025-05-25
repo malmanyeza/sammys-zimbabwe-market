@@ -73,21 +73,15 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
   const totalItemsSold = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const averageOrderValue = sellerOrders.length > 0 ? totalRevenue / sellerOrders.length : 0;
 
-  const categoryChartConfig = {
+  const chartConfig = {
     sales: {
       label: "Sales ($)",
-    }
-  };
-
-  const productChartConfig = {
+    },
+    sold: {
+      label: "Items Sold",
+    },
     revenue: {
       label: "Revenue ($)",
-    }
-  };
-
-  const pieChartConfig = {
-    products: {
-      label: "Products",
     }
   };
 
@@ -171,15 +165,17 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
             <CardDescription>Revenue breakdown by product categories</CardDescription>
           </CardHeader>
           <CardContent className="p-4">
-            <ChartContainer config={categoryChartConfig} className="h-[300px] w-full">
-              <BarChart data={salesByCategory} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="sales" fill="#8884d8" />
-              </BarChart>
-            </ChartContainer>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={salesByCategory} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="sales" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -190,25 +186,27 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
             <CardDescription>Product distribution across categories</CardDescription>
           </CardHeader>
           <CardContent className="p-4">
-            <ChartContainer config={pieChartConfig} className="h-[300px] w-full">
-              <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                <Pie
-                  data={salesByCategory}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="products"
-                >
-                  {salesByCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
-              </PieChart>
-            </ChartContainer>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <Pie
+                    data={salesByCategory}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="products"
+                  >
+                    {salesByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -219,15 +217,17 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
             <CardDescription>Best performing products by revenue</CardDescription>
           </CardHeader>
           <CardContent className="p-4">
-            <ChartContainer config={productChartConfig} className="h-[300px] w-full">
-              <BarChart data={productSales} layout="horizontal" margin={{ top: 20, right: 30, left: 100, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={100} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="revenue" fill="#82ca9d" />
-              </BarChart>
-            </ChartContainer>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={productSales} layout="horizontal" margin={{ top: 20, right: 30, left: 100, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={100} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="revenue" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
