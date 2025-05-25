@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, Package } from 'lucide-react';
 
 interface Product {
@@ -55,16 +55,6 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
       products: categoryProducts.length
     };
   }).filter(item => item.sales > 0);
-
-  // Calculate monthly sales (mock data for demonstration)
-  const monthlySales = [
-    { month: 'Jan', sales: 2400 },
-    { month: 'Feb', sales: 1398 },
-    { month: 'Mar', sales: 9800 },
-    { month: 'Apr', sales: 3908 },
-    { month: 'May', sales: 4800 },
-    { month: 'Jun', sales: 3800 },
-  ];
 
   // Top selling products
   const productSales = products.map(product => {
@@ -174,10 +164,10 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
             <CardTitle>Sales by Category</CardTitle>
             <CardDescription>Revenue breakdown by product categories</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+          <CardContent className="p-4">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesByCategory}>
+                <BarChart data={salesByCategory} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
@@ -185,7 +175,7 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
                   <Bar dataKey="sales" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -195,10 +185,10 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
             <CardTitle>Category Distribution</CardTitle>
             <CardDescription>Product distribution across categories</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+          <CardContent className="p-4">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <Pie
                     data={salesByCategory}
                     cx="50%"
@@ -216,41 +206,20 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
                   <ChartTooltip content={<ChartTooltipContent />} />
                 </PieChart>
               </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Monthly Sales Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Sales Trend</CardTitle>
-            <CardDescription>Sales performance over the last 6 months</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlySales}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line type="monotone" dataKey="sales" stroke="#8884d8" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           </CardContent>
         </Card>
 
         {/* Top Selling Products */}
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Top Selling Products</CardTitle>
             <CardDescription>Best performing products by revenue</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+          <CardContent className="p-4">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={productSales} layout="horizontal">
+                <BarChart data={productSales} layout="horizontal" margin={{ top: 20, right: 30, left: 100, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" width={100} />
@@ -258,7 +227,7 @@ const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
                   <Bar dataKey="revenue" fill="#82ca9d" />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
