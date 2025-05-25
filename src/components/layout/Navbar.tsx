@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SignInModal from '@/components/auth/SignInModal';
 import SignUpModal from '@/components/auth/SignUpModal';
-import UserProfile from '@/components/seller/UserProfile';
 
 const Navbar = () => {
   const { items } = useCart();
@@ -82,14 +81,10 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-gray-50">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <UserProfile 
-                  trigger={
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </DropdownMenuItem>
-                  }
-                />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
                 {user?.role === 'seller' && (
                   <DropdownMenuItem asChild>
                     <Link to="/seller-dashboard">
