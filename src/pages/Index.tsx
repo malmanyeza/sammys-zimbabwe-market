@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroBanner from '@/components/home/HeroBanner';
 import ProductCard from '@/components/home/ProductCard';
+import FloatingAiButton from '@/components/ui/floating-ai-button';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -97,6 +98,7 @@ const Index = () => {
       </main>
 
       <Footer />
+      <FloatingAiButton />
     </div>
   );
 };

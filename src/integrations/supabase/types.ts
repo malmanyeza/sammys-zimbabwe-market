@@ -222,7 +222,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_is_product_seller: {
+        Args: { product_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      user_owns_order: {
+        Args: { order_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

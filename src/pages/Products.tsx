@@ -1,7 +1,7 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import FloatingAiButton from '@/components/ui/floating-ai-button';
 import SearchBar from '@/components/products/SearchBar';
 import FilterSection from '@/components/products/FilterSection';
 import ProductCard from '@/components/home/ProductCard';
@@ -202,6 +202,7 @@ const Products = () => {
       </main>
 
       <Footer />
+      <FloatingAiButton />
     </div>
   );
 };
