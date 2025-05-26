@@ -107,8 +107,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ trigger }) => {
         
         <div className="space-y-6">
           <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
-              <AvatarFallback className="text-lg">
+            <Avatar className="h-20 w-20 bg-primary">
+              <AvatarFallback className="text-lg bg-primary text-primary-foreground">
                 {user?.name ? getInitials(user.name) : 'U'}
               </AvatarFallback>
             </Avatar>
