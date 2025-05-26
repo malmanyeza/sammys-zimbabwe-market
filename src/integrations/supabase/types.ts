@@ -76,7 +76,6 @@ export type Database = {
           shipping_address_id: string | null
           status: string
           total: number
-          updated_at: string
           user_id: string
         }
         Insert: {
@@ -85,7 +84,6 @@ export type Database = {
           shipping_address_id?: string | null
           status: string
           total: number
-          updated_at?: string
           user_id: string
         }
         Update: {
@@ -94,7 +92,6 @@ export type Database = {
           shipping_address_id?: string | null
           status?: string
           total?: number
-          updated_at?: string
           user_id?: string
         }
         Relationships: [

@@ -113,7 +113,7 @@ const Checkout = () => {
         throw new Error("Failed to create shipping address");
       }
       
-      // 2. Create order
+      // 2. Create order with explicit created_at timestamp
       const totalAmount = getCartTotal() + tax;
       
       const { data: order, error: orderError } = await supabase
@@ -122,30 +122,33 @@ const Checkout = () => {
           user_id: user.id,
           total: totalAmount,
           status: 'pending',
-          shipping_address_id: shippingAddress.id
+          shipping_address_id: shippingAddress.id,
+          created_at: new Date().toISOString()
         })
         .select()
         .single();
         
       if (orderError) {
+        console.error("Order creation error:", orderError);
         throw new Error("Failed to create order");
       }
       
-      // 3. Create order items - Converting product_id from number to string
+      // 3. Create order items
       const orderItems = items.map(item => ({
         order_id: order.id,
-        product_id: item.id, // Convert to string to match expected type
+        product_id: item.id,
         quantity: item.quantity,
         price: item.price
       }));
 
-      console.log("Here are the ordered Items",orderItems)
+      console.log("Here are the ordered Items", orderItems);
       
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
         
       if (itemsError) {
+        console.error("Order items creation error:", itemsError);
         throw new Error("Failed to create order items");
       }
       
