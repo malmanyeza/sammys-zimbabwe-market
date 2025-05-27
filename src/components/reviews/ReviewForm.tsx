@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, MessageSquare } from "lucide-react";
@@ -37,7 +36,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   onReviewSubmitted 
 }) => {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const queryClient = useQueryClient();
 
@@ -72,9 +70,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
-      queryClient.invalidateQueries({ queryKey: ['sellerOrders'] });
-      setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['productReviews'] });
+      queryClient.invalidateQueries({ queryKey: ['orderItemReview'] });
+      queryClient.invalidateQueries({ queryKey: ['userOrderItems'] });
+      
       form.reset();
       setSelectedRating(0);
       
@@ -111,21 +110,18 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4" />
-          Write Review
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
-          <DialogDescription>
-            Share your experience with {productName}
-          </DialogDescription>
-        </DialogHeader>
-        
+    <Card className="mt-4 border-t-0 rounded-t-none">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5" />
+          Write a Review
+        </CardTitle>
+        <CardDescription>
+          Share your experience with {productName}
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <div className="space-y-2">
@@ -166,11 +162,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               )}
             />
             
-            <DialogFooter>
+            <div className="flex gap-2">
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => setIsOpen(false)}
+                onClick={() => onReviewSubmitted?.()}
               >
                 Cancel
               </Button>
@@ -180,11 +176,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
               >
                 {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 };
 

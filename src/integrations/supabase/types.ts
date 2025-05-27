@@ -37,6 +37,8 @@ export type Database = {
           price: number
           product_id: string
           quantity: number
+          shipped_at: string | null
+          status: string | null
         }
         Insert: {
           id?: string
@@ -44,6 +46,8 @@ export type Database = {
           price: number
           product_id: string
           quantity: number
+          shipped_at?: string | null
+          status?: string | null
         }
         Update: {
           id?: string
@@ -51,6 +55,8 @@ export type Database = {
           price?: number
           product_id?: string
           quantity?: number
+          shipped_at?: string | null
+          status?: string | null
         }
         Relationships: [
           {

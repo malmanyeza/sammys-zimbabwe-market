@@ -15,6 +15,7 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import SellerDashboard from "./pages/SellerDashboard";
 import ProductAssistant from "./pages/ProductAssistant";
+import PurchaseHistory from "./pages/PurchaseHistory";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <OrderSuccess />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/purchase-history" 
+                element={
+                  <ProtectedRoute>
+                    <PurchaseHistory />
                   </ProtectedRoute>
                 } 
               />
