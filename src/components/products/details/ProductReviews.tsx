@@ -34,7 +34,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
           comment,
           created_at,
           buyer_id,
-          profiles!buyer_id (
+          profiles (
             name
           )
         `)
