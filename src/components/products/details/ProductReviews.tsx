@@ -34,7 +34,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
           comment,
           created_at,
           buyer_id,
-          profiles:buyer_id (
+          profiles!buyer_id (
             name
           )
         `)
@@ -46,7 +46,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
         throw new Error('Failed to fetch reviews');
       }
 
-      return data as Review[];
+      return data || [];
     },
   });
 
