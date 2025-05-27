@@ -26,27 +26,54 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId }) => {
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ['productReviews', productId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First fetch reviews
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from('reviews')
         .select(`
           id,
           rating,
           comment,
           created_at,
-          buyer_id,
-          profiles (
-            name
-          )
+          buyer_id
         `)
         .eq('product_id', productId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching reviews:', error);
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
         throw new Error('Failed to fetch reviews');
       }
 
-      return data || [];
+      if (!reviewsData || reviewsData.length === 0) {
+        return [];
+      }
+
+      // Get unique buyer IDs
+      const buyerIds = [...new Set(reviewsData.map(review => review.buyer_id))];
+
+      // Fetch profiles for all buyers
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', buyerIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        // Continue without profile data rather than throwing
+      }
+
+      // Create a map of buyer_id to profile for quick lookup
+      const profilesMap = new Map(
+        (profilesData || []).map(profile => [profile.id, profile])
+      );
+
+      // Combine reviews with profile data
+      const reviewsWithProfiles = reviewsData.map(review => ({
+        ...review,
+        profiles: profilesMap.get(review.buyer_id) || null
+      }));
+
+      return reviewsWithProfiles as Review[];
     },
   });
 
