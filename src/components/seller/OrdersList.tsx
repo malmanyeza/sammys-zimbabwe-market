@@ -20,6 +20,8 @@ import { formatRelative } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import ReviewForm from '@/components/reviews/ReviewForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface OrderItem {
   id: string;
@@ -50,6 +52,7 @@ interface OrdersListProps {
 }
 
 const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const shipOrderMutation = useMutation({
@@ -198,21 +201,34 @@ const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
                           <h4 className="font-medium mb-2">Items</h4>
                           <div className="space-y-3">
                             {order.order_items.map((item) => (
-                              <div key={item.id} className="flex gap-3">
-                                <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
-                                  <img 
-                                    src={item.product_image || '/placeholder.svg'} 
-                                    alt={item.product_name} 
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="font-medium">{item.product_name}</p>
-                                  <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                                    <p>Qty: {item.quantity}</p>
-                                    <p>${item.price.toFixed(2)} each</p>
+                              <div key={item.id} className="space-y-3">
+                                <div className="flex gap-3">
+                                  <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                                    <img 
+                                      src={item.product_image || '/placeholder.svg'} 
+                                      alt={item.product_name} 
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-medium">{item.product_name}</p>
+                                    <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                                      <p>Qty: {item.quantity}</p>
+                                      <p>${item.price.toFixed(2)} each</p>
+                                    </div>
                                   </div>
                                 </div>
+                                {/* Show review button if order is shipped and user is the buyer */}
+                                {order.status === 'shipped' && user && (
+                                  <div className="ml-19">
+                                    <ReviewForm
+                                      orderId={order.id}
+                                      productId={item.product_id}
+                                      productName={item.product_name}
+                                      sellerId={user.id} // This should be the actual seller_id from the product
+                                    />
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -345,21 +361,34 @@ const OrdersList = ({ orders, isLoading }: OrdersListProps) => {
                       <h4 className="font-medium mb-2">Items</h4>
                       <div className="space-y-3">
                         {order.order_items.map((item) => (
-                          <div key={item.id} className="flex gap-3">
-                            <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
-                              <img 
-                                src={item.product_image || '/placeholder.svg'} 
-                                alt={item.product_name} 
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{item.product_name}</p>
-                              <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                                <p>Qty: {item.quantity}</p>
-                                <p>${item.price.toFixed(2)} each</p>
+                          <div key={item.id} className="space-y-3">
+                            <div className="flex gap-3">
+                              <div className="h-16 w-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                                <img 
+                                  src={item.product_image || '/placeholder.svg'} 
+                                  alt={item.product_name} 
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-medium">{item.product_name}</p>
+                                <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                                  <p>Qty: {item.quantity}</p>
+                                  <p>${item.price.toFixed(2)} each</p>
+                                </div>
                               </div>
                             </div>
+                            {/* Show review button if order is shipped and user is the buyer */}
+                            {order.status === 'shipped' && user && (
+                              <div className="ml-19">
+                                <ReviewForm
+                                  orderId={order.id}
+                                  productId={item.product_id}
+                                  productName={item.product_name}
+                                  sellerId={user.id} // This should be the actual seller_id from the product
+                                />
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

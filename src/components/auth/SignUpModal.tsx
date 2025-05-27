@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -36,6 +36,10 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onOpenSignIn
     try {
       const success = await register(name, email, password, role);
       if (success) {
+        toast.success('Account created successfully!', {
+          description: 'Please check your email and click the confirmation link to activate your account.',
+          duration: 6000,
+        });
         onClose();
       }
     } finally {
