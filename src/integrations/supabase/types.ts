@@ -264,6 +264,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       user_is_product_seller: {
         Args: { product_uuid: string; user_uuid: string }
         Returns: boolean
