@@ -25,7 +25,7 @@ interface OrderItem {
   };
   orders: {
     created_at: string;
-  };
+  } | null;
 }
 
 interface PurchaseItemProps {
@@ -86,6 +86,9 @@ const PurchaseItem: React.FC<PurchaseItemProps> = ({ orderItem }) => {
   const canReview = orderItem.status === 'shipped' && !existingReview;
   const showShippedNotification = orderItem.status === 'shipped' && orderItem.shipped_at;
 
+  // Safe access to order creation date
+  const orderCreatedAt = orderItem.orders?.created_at;
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
@@ -102,9 +105,11 @@ const PurchaseItem: React.FC<PurchaseItemProps> = ({ orderItem }) => {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{orderItem.products.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ordered {formatDistanceToNow(new Date(orderItem.orders.created_at))} ago
-                </p>
+                {orderCreatedAt && (
+                  <p className="text-sm text-muted-foreground">
+                    Ordered {formatDistanceToNow(new Date(orderCreatedAt))} ago
+                  </p>
+                )}
                 <p className="text-sm">
                   Quantity: {orderItem.quantity} × ${orderItem.price.toFixed(2)}
                 </p>
