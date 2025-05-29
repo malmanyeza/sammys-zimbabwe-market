@@ -71,7 +71,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productReviews'] });
-      queryClient.invalidateQueries({ queryKey: ['orderItemReview'] });
+      queryClient.invalidateQueries({ queryKey: ['productReview'] });
       queryClient.invalidateQueries({ queryKey: ['userOrderItems'] });
       
       form.reset();

@@ -65,14 +65,15 @@ const getStatusColor = (status: string) => {
 const PurchaseItem: React.FC<PurchaseItemProps> = ({ orderItem }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  // Check if user has already reviewed this order item
+  // Check if user has already reviewed this product for this order
   const { data: existingReview } = useQuery({
-    queryKey: ['orderItemReview', orderItem.id],
+    queryKey: ['productReview', orderItem.order_id, orderItem.product_id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('reviews')
         .select('id')
-        .eq('order_id', orderItem.id)
+        .eq('order_id', orderItem.order_id)
+        .eq('product_id', orderItem.product_id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
@@ -163,7 +164,7 @@ const PurchaseItem: React.FC<PurchaseItemProps> = ({ orderItem }) => {
 
       {showReviewForm && (
         <ReviewForm
-          orderId={orderItem.id}
+          orderId={orderItem.order_id}
           productId={orderItem.product_id}
           productName={orderItem.products.name}
           sellerId={orderItem.products.seller_id}
