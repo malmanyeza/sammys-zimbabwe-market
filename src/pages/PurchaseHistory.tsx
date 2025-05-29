@@ -56,14 +56,30 @@ const PurchaseHistory = () => {
             created_at
           )
         `)
-        .order('shipped_at', { ascending: false, nullsFirst: false });
+        .eq('orders.user_id', user.id);
 
       if (error) {
         console.error('Error fetching order items:', error);
         throw new Error('Failed to fetch purchase history');
       }
 
-      return data as OrderItem[];
+      // Sort items: shipped items first (by shipped_at desc), then by created_at desc
+      const sortedData = (data as OrderItem[]).sort((a, b) => {
+        if (a.status === 'shipped' && b.status !== 'shipped') return -1;
+        if (a.status !== 'shipped' && b.status === 'shipped') return 1;
+        
+        if (a.status === 'shipped' && b.status === 'shipped') {
+          const aShipped = new Date(a.shipped_at!).getTime();
+          const bShipped = new Date(b.shipped_at!).getTime();
+          return bShipped - aShipped;
+        }
+        
+        const aCreated = new Date(a.orders.created_at).getTime();
+        const bCreated = new Date(b.orders.created_at).getTime();
+        return bCreated - aCreated;
+      });
+
+      return sortedData;
     },
     enabled: !!user,
   });

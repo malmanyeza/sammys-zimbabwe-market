@@ -1,12 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star, Check } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 
 interface ProductInfoProps {
   product: {
-    id: string; // Allow both string and number types
+    id: string;
     name: string;
     description: string;
     price: number;
@@ -19,14 +19,19 @@ interface ProductInfoProps {
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
   const { addItem } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = () => {
     addItem({
-      id: product.id, // Now accepts both string and number
+      id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
     });
+    
+    // Show visual feedback
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
@@ -56,9 +61,26 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       </div>
 
       <div className="flex gap-4 pt-6">
-        <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-          <ShoppingCart className="mr-2" />
-          Add to Cart
+        <Button 
+          size="lg" 
+          className={`flex-1 transition-all duration-300 ${
+            isAdded 
+              ? "bg-green-500 hover:bg-green-600" 
+              : ""
+          }`} 
+          onClick={handleAddToCart}
+        >
+          {isAdded ? (
+            <>
+              <Check className="mr-2" />
+              Added to Cart!
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="mr-2" />
+              Add to Cart
+            </>
+          )}
         </Button>
         <Button size="lg" variant="outline">
           <Heart className="h-5 w-5" />
