@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, User, LogIn, LogOut, Package, Bot } from "lucide-react";
+import { Search, ShoppingCart, User, LogIn, LogOut, Package, Bot, History } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -47,6 +47,12 @@ const Navbar = () => {
             <Bot className="h-4 w-4" />
             AI Assistant
           </Link>
+          {isAuthenticated && (
+            <Link to="/purchase-history" className="hidden md:flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+              <History className="h-4 w-4" />
+              Purchase History
+            </Link>
+          )}
           {isAuthenticated && user?.role === 'seller' && (
             <Link to="/seller-dashboard" className="hidden md:block text-foreground hover:text-primary transition-colors">
               Seller Dashboard
@@ -90,6 +96,12 @@ const Navbar = () => {
                     </DropdownMenuItem>
                   }
                 />
+                <DropdownMenuItem asChild>
+                  <Link to="/purchase-history">
+                    <History className="mr-2 h-4 w-4" />
+                    <span>Purchase History</span>
+                  </Link>
+                </DropdownMenuItem>
                 {user?.role === 'seller' && (
                   <DropdownMenuItem asChild>
                     <Link to="/seller-dashboard">
