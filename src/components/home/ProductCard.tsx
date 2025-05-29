@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Check } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import ProductModal from '@/components/products/ProductModal';
 
 interface ProductCardProps {
-  id: string;
+  id: string; // Keep accepting both types for flexibility
   image: string;
   name: string;
   description: string;
@@ -17,15 +17,10 @@ interface ProductCardProps {
 const ProductCard = ({ id, image, name, description, price }: ProductCardProps) => {
   const { addItem } = useCart();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
   
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent modal from opening when clicking the button
     addItem({ id, name, price, image });
-    
-    // Show visual feedback
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
   };
   
   return (
@@ -50,23 +45,10 @@ const ProductCard = ({ id, image, name, description, price }: ProductCardProps) 
               variant="secondary" 
               size="sm" 
               onClick={handleAddToCart}
-              className={`transition-all duration-300 ${
-                isAdded 
-                  ? "bg-green-500 text-white hover:bg-green-600" 
-                  : "hover:bg-primary hover:text-white"
-              }`}
+              className="hover:bg-primary hover:text-white"
             >
-              {isAdded ? (
-                <>
-                  <Check className="h-4 w-4 mr-1" />
-                  Added!
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  Add
-                </>
-              )}
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Add
             </Button>
           </div>
         </CardContent>
