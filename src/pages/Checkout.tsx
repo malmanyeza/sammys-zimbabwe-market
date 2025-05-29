@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -94,7 +93,29 @@ const Checkout = () => {
     setIsProcessing(true);
     
     try {
-      // 1. Create shipping address
+      // 1. Check stock availability for all items first
+      console.log("Checking stock availability for items:", items);
+      
+      for (const item of items) {
+        const { data: product, error: stockError } = await supabase
+          .from('products')
+          .select('stock, name')
+          .eq('id', item.id)
+          .single();
+          
+        if (stockError) {
+          console.error("Error checking stock for product:", item.id, stockError);
+          throw new Error(`Could not verify stock for ${item.name}`);
+        }
+        
+        if (!product || product.stock < item.quantity) {
+          throw new Error(`Insufficient stock for ${item.name}. Available: ${product?.stock || 0}, Requested: ${item.quantity}`);
+        }
+      }
+      
+      console.log("Stock validation passed for all items");
+      
+      // 2. Create shipping address
       const { data: shippingAddress, error: shippingError } = await supabase
         .from('shipping_addresses')
         .insert({
@@ -110,10 +131,13 @@ const Checkout = () => {
         .single();
         
       if (shippingError) {
+        console.error("Shipping address creation error:", shippingError);
         throw new Error("Failed to create shipping address");
       }
       
-      // 2. Create order with explicit created_at timestamp
+      console.log("Shipping address created:", shippingAddress.id);
+      
+      // 3. Create order with explicit created_at timestamp
       const totalAmount = getCartTotal() + tax;
       
       const { data: order, error: orderError } = await supabase
@@ -133,7 +157,9 @@ const Checkout = () => {
         throw new Error("Failed to create order");
       }
       
-      // 3. Create order items
+      console.log("Order created:", order.id);
+      
+      // 4. Create order items one by one with better error handling
       const orderItems = items.map(item => ({
         order_id: order.id,
         product_id: item.id,
@@ -141,7 +167,7 @@ const Checkout = () => {
         price: item.price
       }));
 
-      console.log("Here are the ordered Items", orderItems);
+      console.log("Creating order items:", orderItems);
       
       const { error: itemsError } = await supabase
         .from('order_items')
@@ -149,8 +175,16 @@ const Checkout = () => {
         
       if (itemsError) {
         console.error("Order items creation error:", itemsError);
-        throw new Error("Failed to create order items");
+        
+        // Provide specific error message for stock constraint violations
+        if (itemsError.code === '23514' && itemsError.message.includes('products_stock_check')) {
+          throw new Error("One or more items in your cart are no longer available in the requested quantity. Please refresh the page and try again.");
+        }
+        
+        throw new Error("Failed to create order items: " + itemsError.message);
       }
+      
+      console.log("Order items created successfully");
       
       // Store order data in session storage for the success page
       const orderData = {
