@@ -1,3 +1,5 @@
+
+import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,68 +19,77 @@ import ProductAssistant from "./pages/ProductAssistant";
 import PurchaseHistory from "./pages/PurchaseHistory";
 import AdminDashboard from '@/pages/AdminDashboard';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <Toaster />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetails />} />
-              <Route path="/product-assistant" element={<ProductAssistant />} />
-              <Route 
-                path="/cart" 
-                element={
-                  <ProtectedRoute>
-                    <Cart />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/checkout" 
-                element={
-                  <ProtectedRoute>
-                    <Checkout />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/order-success" 
-                element={
-                  <ProtectedRoute>
-                    <OrderSuccess />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/purchase-history" 
-                element={
-                  <ProtectedRoute>
-                    <PurchaseHistory />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/seller-dashboard" 
-                element={
-                  <ProtectedRoute requiredRole="seller">
-                    <SellerDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <CartProvider>
+              <Toaster />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetails />} />
+                <Route path="/product-assistant" element={<ProductAssistant />} />
+                <Route 
+                  path="/cart" 
+                  element={
+                    <ProtectedRoute>
+                      <Cart />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/checkout" 
+                  element={
+                    <ProtectedRoute>
+                      <Checkout />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/order-success" 
+                  element={
+                    <ProtectedRoute>
+                      <OrderSuccess />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/purchase-history" 
+                  element={
+                    <ProtectedRoute>
+                      <PurchaseHistory />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/seller-dashboard" 
+                  element={
+                    <ProtectedRoute requiredRole="seller">
+                      <SellerDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </CartProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
