@@ -70,6 +70,13 @@ export type Database = {
             foreignKeyName: "order_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "product_rankings"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -155,6 +162,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_rankings"
+            referencedColumns: ["category_id"]
+          },
         ]
       }
       profiles: {
@@ -163,21 +177,21 @@ export type Database = {
           email: string | null
           id: string
           name: string | null
-          role: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           id: string
           name?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
           name?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
         }
         Relationships: []
       }
@@ -261,9 +275,77 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      buyer_rankings: {
+        Row: {
+          buyer_id: string | null
+          buyer_name: string | null
+          total_items_bought: number | null
+          total_orders: number | null
+          total_spent: number | null
+        }
+        Relationships: []
+      }
+      category_rankings: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          times_sold: number | null
+          total_products: number | null
+          total_quantity_sold: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      product_rankings: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          product_id: string | null
+          product_name: string | null
+          times_sold: number | null
+          total_quantity_sold: number | null
+          total_revenue: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_rankings"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
+      seller_rankings: {
+        Row: {
+          seller_id: string | null
+          seller_name: string | null
+          total_items_sold: number | null
+          total_orders: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      user_analytics: {
+        Row: {
+          count: number | null
+          role: Database["public"]["Enums"]["app_role"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      delete_user_account: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -278,7 +360,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "customer" | "seller" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -393,6 +475,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["customer", "seller", "admin"],
+    },
   },
 } as const

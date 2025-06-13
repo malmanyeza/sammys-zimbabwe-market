@@ -1,20 +1,22 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingCart, User, LogIn, LogOut, Package, Bot, History } from "lucide-react";
+import { Search, ShoppingCart, User, LogIn, LogOut, Package, Bot, History, Menu, ShoppingBag, Grid3X3, Store, Crown, UserPlus } from "lucide-react";
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SignInModal from '@/components/auth/SignInModal';
 import SignUpModal from '@/components/auth/SignUpModal';
 import UserProfile from '@/components/seller/UserProfile';
+import MobileCategorySelector from './MobileCategorySelector';
 
 const Navbar = () => {
   const { items } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
   
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
   
@@ -128,6 +130,82 @@ const Navbar = () => {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className="md:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/products" className="flex items-center gap-2">
+                <ShoppingBag className="h-4 w-4" />
+                Products
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <div className="w-full">
+                <MobileCategorySelector 
+                  trigger={
+                    <button className="w-full flex items-center gap-2 text-sm">
+                      <Grid3X3 className="h-4 w-4" />
+                      Categories
+                    </button>
+                  }
+                />
+              </div>
+            </DropdownMenuItem>
+            {user ? (
+              <>
+                <DropdownMenuSeparator />
+                {user.role === 'seller' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/seller-dashboard" className="flex items-center gap-2">
+                      <Store className="h-4 w-4" />
+                      Seller Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {user.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin-dashboard" className="flex items-center gap-2">
+                      <Crown className="h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link to="/purchase-history" className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Purchase History
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout} className="text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowSignIn(true)}>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowSignUp(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Sign Up
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <SignInModal 

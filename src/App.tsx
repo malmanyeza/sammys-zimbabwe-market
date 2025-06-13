@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +15,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import SellerDashboard from "./pages/SellerDashboard";
 import ProductAssistant from "./pages/ProductAssistant";
 import PurchaseHistory from "./pages/PurchaseHistory";
+import AdminDashboard from '@/pages/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -71,6 +71,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </CartProvider>
