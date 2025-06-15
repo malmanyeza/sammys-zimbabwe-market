@@ -6,21 +6,12 @@ const Footer = () => {
   return (
     <footer className="bg-secondary text-white py-12">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">Sammy's Market</h3>
             <p className="text-white/80">
               Bringing authentic Zimbabwean crafts and culture to your doorstep.
             </p>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              <li><Link to="/" className="text-white/80 hover:text-accent">About Us</Link></li>
-              <li><Link to="/products" className="text-white/80 hover:text-accent">Products</Link></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Artisans</a></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Contact</a></li>
-            </ul>
           </div>
           <div>
             <h4 className="text-lg font-semibold mb-4">Categories</h4>
