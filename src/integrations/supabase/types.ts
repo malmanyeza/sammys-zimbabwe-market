@@ -342,11 +342,19 @@ export type Database = {
       }
     }
     Functions: {
+      check_user_role: {
+        Args: { user_id: string; target_role: string }
+        Returns: boolean
+      }
       delete_user_account: {
         Args: { target_user_id: string }
         Returns: boolean
       }
       get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
