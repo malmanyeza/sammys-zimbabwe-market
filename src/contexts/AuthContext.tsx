@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -214,7 +213,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           email: data.user.email,
           emailConfirmed: data.user.email_confirmed_at,
           userMetadata: data.user.user_metadata,
-          rawUserMetadata: data.user.raw_user_meta_data
+          rawUserMetadata: data.user.user_metadata
         } : null
       });
       console.log("Register: Response error:", error);
@@ -224,9 +223,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           message: error.message,
           status: error.status,
           statusCode: error.status,
-          name: error.name,
-          cause: error.cause,
-          stack: error.stack
+          name: error.name
         });
         toast.error(error.message);
         return false;
