@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -15,8 +16,8 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-white/80 hover:text-accent">About Us</a></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Products</a></li>
+              <li><Link to="/" className="text-white/80 hover:text-accent">About Us</Link></li>
+              <li><Link to="/products" className="text-white/80 hover:text-accent">Products</Link></li>
               <li><a href="#" className="text-white/80 hover:text-accent">Artisans</a></li>
               <li><a href="#" className="text-white/80 hover:text-accent">Contact</a></li>
             </ul>
@@ -24,10 +25,10 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">Categories</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-white/80 hover:text-accent">Crafts</a></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Jewelry</a></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Clothing</a></li>
-              <li><a href="#" className="text-white/80 hover:text-accent">Art</a></li>
+              <li><Link to="/products?search=crafts" className="text-white/80 hover:text-accent">Crafts</Link></li>
+              <li><Link to="/products?search=jewelry" className="text-white/80 hover:text-accent">Jewelry</Link></li>
+              <li><Link to="/products?search=clothing" className="text-white/80 hover:text-accent">Clothing</Link></li>
+              <li><Link to="/products?search=art" className="text-white/80 hover:text-accent">Art</Link></li>
             </ul>
           </div>
           <div>

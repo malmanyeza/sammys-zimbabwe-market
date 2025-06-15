@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import FloatingAiButton from '@/components/ui/floating-ai-button';
@@ -25,7 +26,8 @@ interface Category {
 }
 
 const Products = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
@@ -71,6 +73,23 @@ const Products = () => {
     fetchProductsAndCategories();
   }, []);
 
+  // Handle URL search parameters on mount and when they change
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    const searchParam = searchParams.get('search');
+    
+    if (categoryParam && categories.length > 0) {
+      const category = categories.find(cat => cat.id === categoryParam);
+      if (category) {
+        setSelectedCategory(category.name);
+      }
+    }
+    
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [searchParams, categories]);
+
   // Filter products whenever searchQuery or selectedCategory changes
   useEffect(() => {
     let results = products;
@@ -98,10 +117,29 @@ const Products = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    // Update URL params
+    const newParams = new URLSearchParams(searchParams);
+    if (query) {
+      newParams.set('search', query);
+    } else {
+      newParams.delete('search');
+    }
+    setSearchParams(newParams);
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    // Update URL params
+    const newParams = new URLSearchParams(searchParams);
+    if (category !== 'All Products') {
+      const categoryObj = categories.find(cat => cat.name === category);
+      if (categoryObj) {
+        newParams.set('category', categoryObj.id);
+      }
+    } else {
+      newParams.delete('category');
+    }
+    setSearchParams(newParams);
   };
 
   const loadMore = () => {
@@ -166,6 +204,7 @@ const Products = () => {
                 <Button onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('All Products');
+                  setSearchParams(new URLSearchParams());
                 }}>
                   Clear Filters
                 </Button>
