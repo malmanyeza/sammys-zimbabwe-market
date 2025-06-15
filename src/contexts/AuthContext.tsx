@@ -34,38 +34,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isAuthenticated = user !== null;
 
   useEffect(() => {
+    console.log("AuthProvider: Setting up auth state change listener");
+    
     // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        console.log("AuthProvider: Auth state changed", { event, hasSession: !!currentSession });
         setSession(currentSession);
         
         if (currentSession?.user) {
+          console.log("AuthProvider: User session found, fetching profile for:", currentSession.user.id);
+          
           // The setTimeout helps prevent potential deadlocks in Supabase authentication
           setTimeout(async () => {
             try {
               // Get user profile data
-              const { data: profile } = await supabase
+              console.log("AuthProvider: Attempting to fetch profile data");
+              const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', currentSession.user.id)
                 .single();
               
+              if (error) {
+                console.error("AuthProvider: Error fetching user profile:", error);
+              } else {
+                console.log("AuthProvider: Profile data fetched successfully:", profile);
+              }
+              
               if (profile) {
-                setUser({
+                const userData = {
                   id: currentSession.user.id,
                   name: profile.name || 'User',
                   email: profile.email || currentSession.user.email || '',
                   role: profile.role as UserRole || 'customer'
-                });
+                };
+                console.log("AuthProvider: Setting user data:", userData);
+                setUser(userData);
+              } else {
+                console.log("AuthProvider: No profile found, setting user to null");
+                setUser(null);
               }
               
               setIsLoading(false);
             } catch (error) {
-              console.error("Error fetching user profile:", error);
+              console.error("AuthProvider: Unexpected error fetching user profile:", error);
               setIsLoading(false);
             }
           }, 0);
         } else {
+          console.log("AuthProvider: No user session, clearing user state");
           setUser(null);
           setIsLoading(false);
         }
@@ -73,28 +91,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     // THEN check for existing session
+    console.log("AuthProvider: Checking for existing session");
     supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      console.log("AuthProvider: Initial session check", { hasSession: !!currentSession });
       setSession(currentSession);
       
       if (currentSession?.user) {
+        console.log("AuthProvider: Initial session found, fetching profile for:", currentSession.user.id);
         try {
           // Get user profile data
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', currentSession.user.id)
             .single();
 
+          if (error) {
+            console.error("AuthProvider: Error fetching initial profile:", error);
+          } else {
+            console.log("AuthProvider: Initial profile data:", profile);
+          }
+
           if (profile) {
-            setUser({
+            const userData = {
               id: currentSession.user.id,
               name: profile.name || 'User',
               email: profile.email || currentSession.user.email || '',
               role: profile.role as UserRole || 'customer'
-            });
+            };
+            console.log("AuthProvider: Setting initial user data:", userData);
+            setUser(userData);
           }
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error("AuthProvider: Unexpected error fetching initial profile:", error);
         }
       }
       
@@ -102,26 +131,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => {
+      console.log("AuthProvider: Cleaning up auth subscription");
       subscription.unsubscribe();
     };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log("Login: Starting login attempt for email:", email);
+    
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("Login: Calling supabase.auth.signInWithPassword");
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
+      console.log("Login: Supabase auth response", { 
+        hasData: !!data, 
+        hasUser: !!data?.user, 
+        hasSession: !!data?.session,
+        error: error 
+      });
+      
       if (error) {
+        console.error("Login: Supabase auth error:", error);
         toast.error(error.message);
         return false;
       }
       
+      if (data?.user) {
+        console.log("Login: User authenticated successfully:", data.user.id);
+      }
+      
+      console.log("Login: Authentication successful, showing success toast");
       toast.success("Successfully logged in!");
       return true;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login: Unexpected error during login:", error);
       toast.error("Failed to log in. Please try again.");
       return false;
     }
