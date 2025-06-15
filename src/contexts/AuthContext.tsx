@@ -174,8 +174,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (name: string, email: string, password: string, role: UserRole): Promise<boolean> => {
+    console.log("Register: Starting registration attempt");
+    console.log("Register: Input parameters:", {
+      name: name,
+      email: email,
+      passwordLength: password ? password.length : 0,
+      role: role
+    });
+    
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log("Register: Preparing signup data object");
+      const signupData = {
         email,
         password,
         options: {
@@ -184,17 +193,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             role
           }
         }
+      };
+      console.log("Register: Signup data prepared:", {
+        email: signupData.email,
+        hasPassword: !!signupData.password,
+        passwordLength: signupData.password ? signupData.password.length : 0,
+        optionsData: signupData.options.data
       });
       
+      console.log("Register: Calling supabase.auth.signUp");
+      const { data, error } = await supabase.auth.signUp(signupData);
+      
+      console.log("Register: Supabase signup response received");
+      console.log("Register: Response data:", {
+        hasData: !!data,
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        userData: data?.user ? {
+          id: data.user.id,
+          email: data.user.email,
+          emailConfirmed: data.user.email_confirmed_at,
+          userMetadata: data.user.user_metadata,
+          rawUserMetadata: data.user.raw_user_meta_data
+        } : null
+      });
+      console.log("Register: Response error:", error);
+      
       if (error) {
+        console.error("Register: Supabase signup error details:", {
+          message: error.message,
+          status: error.status,
+          statusCode: error.status,
+          name: error.name,
+          cause: error.cause,
+          stack: error.stack
+        });
         toast.error(error.message);
         return false;
       }
       
+      console.log("Register: Signup successful, no error returned");
       toast.success("Registration successful! Check your email for verification.");
       return true;
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Register: Unexpected error during registration:");
+      console.error("Register: Error type:", typeof error);
+      console.error("Register: Error object:", error);
+      console.error("Register: Error message:", error instanceof Error ? error.message : String(error));
+      console.error("Register: Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+      
       toast.error("Failed to register. Please try again.");
       return false;
     }
