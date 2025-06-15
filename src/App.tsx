@@ -18,6 +18,7 @@ import SellerDashboard from "./pages/SellerDashboard";
 import ProductAssistant from "./pages/ProductAssistant";
 import PurchaseHistory from "./pages/PurchaseHistory";
 import AdminDashboard from '@/pages/AdminDashboard';
+import SecretAdminManagement from '@/pages/SecretAdminManagement';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +83,7 @@ const App: React.FC = () => {
                   } 
                 />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/secret-admin-management" element={<SecretAdminManagement />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>
