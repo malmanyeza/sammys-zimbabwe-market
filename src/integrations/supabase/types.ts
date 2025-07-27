@@ -14,142 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      cart_items: {
-        Row: {
-          created_at: string | null
-          id: string
-          product_id: string
-          quantity: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          product_id: string
-          quantity?: number
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          product_id?: string
-          quantity?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cart_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       categories: {
         Row: {
+          created_at: string
           description: string | null
-          icon: string | null
           id: string
           name: string
         }
         Insert: {
+          created_at?: string
           description?: string | null
-          icon?: string | null
           id?: string
           name: string
         }
         Update: {
+          created_at?: string
           description?: string | null
-          icon?: string | null
           id?: string
           name?: string
         }
         Relationships: []
       }
-      favorites: {
-        Row: {
-          created_at: string | null
-          id: string
-          product_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          product_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          product_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "favorites_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      messages: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: string
-          read: boolean | null
-          receiver_id: string | null
-          sender_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: string
-          read?: boolean | null
-          receiver_id?: string | null
-          sender_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: string
-          read?: boolean | null
-          receiver_id?: string | null
-          sender_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       order_items: {
         Row: {
-          created_at: string | null
           id: string
-          order_id: string | null
+          order_id: string
           price: number
-          product_id: string | null
+          product_id: string
           quantity: number
+          shipped_at: string | null
+          status: string | null
         }
         Insert: {
-          created_at?: string | null
           id?: string
-          order_id?: string | null
+          order_id: string
           price: number
-          product_id?: string | null
+          product_id: string
           quantity: number
+          shipped_at?: string | null
+          status?: string | null
         }
         Update: {
-          created_at?: string | null
           id?: string
-          order_id?: string | null
+          order_id?: string
           price?: number
-          product_id?: string | null
+          product_id?: string
           quantity?: number
+          shipped_at?: string | null
+          status?: string | null
         }
         Relationships: [
           {
@@ -163,6 +75,13 @@ export type Database = {
             foreignKeyName: "order_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "product_rankings"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -170,94 +89,75 @@ export type Database = {
       }
       orders: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          payment_details: Json | null
-          shipping_address: Json | null
-          status: Database["public"]["Enums"]["order_status"] | null
+          shipping_address_id: string | null
+          status: string
           total: number
-          updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          payment_details?: Json | null
-          shipping_address?: Json | null
-          status?: Database["public"]["Enums"]["order_status"] | null
+          shipping_address_id?: string | null
+          status: string
           total: number
-          updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          payment_details?: Json | null
-          shipping_address?: Json | null
-          status?: Database["public"]["Enums"]["order_status"] | null
+          shipping_address_id?: string | null
+          status?: string
           total?: number
-          updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_shipping_address_id_fkey"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "shipping_addresses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
           category_id: string | null
-          created_at: string | null
-          currency: string | null
+          created_at: string
           description: string | null
           id: string
           image_url: string | null
-          images: string[] | null
-          is_featured: boolean | null
-          like_count: number | null
           name: string
           price: number
-          rating: number | null
-          review_count: number | null
-          seller_id: string | null
-          stock: number | null
-          tags: string[] | null
-          updated_at: string | null
+          seller_id: string
+          stock: number
+          updated_at: string
         }
         Insert: {
           category_id?: string | null
-          created_at?: string | null
-          currency?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
-          images?: string[] | null
-          is_featured?: boolean | null
-          like_count?: number | null
           name: string
           price: number
-          rating?: number | null
-          review_count?: number | null
-          seller_id?: string | null
-          stock?: number | null
-          tags?: string[] | null
-          updated_at?: string | null
+          seller_id: string
+          stock?: number
+          updated_at?: string
         }
         Update: {
           category_id?: string | null
-          created_at?: string | null
-          currency?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
-          images?: string[] | null
-          is_featured?: boolean | null
-          like_count?: number | null
           name?: string
           price?: number
-          rating?: number | null
-          review_count?: number | null
-          seller_id?: string | null
-          stock?: number | null
-          tags?: string[] | null
-          updated_at?: string | null
+          seller_id?: string
+          stock?: number
+          updated_at?: string
         }
         Relationships: [
           {
@@ -268,70 +168,216 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "products_seller_id_fkey"
-            columns: ["seller_id"]
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            referencedRelation: "category_rankings"
+            referencedColumns: ["category_id"]
           },
         ]
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
+          created_at: string
+          email: string | null
           id: string
-          is_premium: boolean | null
-          is_seller: boolean | null
-          location: string | null
           name: string | null
-          role: string | null
-          username: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
+          created_at?: string
+          email?: string | null
           id: string
-          is_premium?: boolean | null
-          is_seller?: boolean | null
-          location?: string | null
           name?: string | null
-          role?: string | null
-          username?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
+          created_at?: string
+          email?: string | null
           id?: string
-          is_premium?: boolean | null
-          is_seller?: boolean | null
-          location?: string | null
           name?: string | null
-          role?: string | null
-          username?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          buyer_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          rating: number
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          rating: number
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          rating?: number
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shipping_addresses: {
+        Row: {
+          address_line1: string
+          address_line2: string | null
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          postal_code: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          address_line1: string
+          address_line2?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          postal_code: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          postal_code?: string
+          state?: string
+          user_id?: string
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      buyer_rankings: {
+        Row: {
+          buyer_id: string | null
+          buyer_name: string | null
+          total_items_bought: number | null
+          total_orders: number | null
+          total_spent: number | null
+        }
+        Relationships: []
+      }
+      category_rankings: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          times_sold: number | null
+          total_products: number | null
+          total_quantity_sold: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      product_rankings: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          product_id: string | null
+          product_name: string | null
+          times_sold: number | null
+          total_quantity_sold: number | null
+          total_revenue: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_rankings"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
+      seller_rankings: {
+        Row: {
+          seller_id: string | null
+          seller_name: string | null
+          total_items_sold: number | null
+          total_orders: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      user_analytics: {
+        Row: {
+          count: number | null
+          role: Database["public"]["Enums"]["app_role"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      is_admin: {
-        Args: { user_id: string }
+      check_user_role: {
+        Args: { user_id: string; target_role: string }
+        Returns: boolean
+      }
+      delete_user_account: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      promote_user_to_admin: {
+        Args: { target_email: string }
+        Returns: boolean
+      }
+      user_is_product_seller: {
+        Args: { product_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      user_owns_order: {
+        Args: { order_uuid: string; user_uuid: string }
         Returns: boolean
       }
     }
     Enums: {
-      order_status:
-        | "pending"
-        | "processing"
-        | "shipped"
-        | "delivered"
-        | "cancelled"
+      app_role: "customer" | "seller" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -459,13 +505,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      order_status: [
-        "pending",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
+      app_role: ["customer", "seller", "admin"],
     },
   },
 } as const
