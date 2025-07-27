@@ -140,13 +140,19 @@ const Navbar = () => {
               <Menu className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 bg-white">
             <DropdownMenuLabel>Navigation</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link to="/products" className="flex items-center gap-2">
                 <ShoppingBag className="h-4 w-4" />
                 Products
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/product-assistant" className="flex items-center gap-2">
+                <Bot className="h-4 w-4" />
+                AI Assistant
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
